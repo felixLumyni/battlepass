@@ -1,5 +1,7 @@
 **Who to sue:** lumyni
 
+[Changelog](https://github.com/felixLumyni/battlepatch/blob/main/battlepatch/changelog.txt)
+
 # CHARACTERS CURRENTLY PATCHED:
 - Maimy
 - HorizonChars (Milne & Iclyn)
