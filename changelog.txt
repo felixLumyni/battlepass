@@ -1,0 +1,57 @@
+# v3
+## Skip:
+	- Resets scraps to 0 on spawn instead of mapload
+## Whisper (NEW):
+	- Battle special: RELOAD
+	- Now depends on ammo to use most abilities
+	- Laser is not grabbable by Silver
+	- Momentum cut for grabbing the flag while using hammer
+	- Whisper can't parry her own rocks
+	- Players take damage if cubed for too long
+	- Gave a name for each ability (console hit feed)
+	- Shields: 0
+	- Weight: 90
+- Updated credits.txt
+
+# v2-hotfix
+## Maimy:
+	- Mace ABSOLUTELY won't get parried by teammates now, whoops
+
+# v2
+## Jana:
+	- Fixed being able to walljump with the flag
+## Maimy:
+	- Mace hitbox can no longer be parried by friendly teammates
+	- Mace hitbox increase (18 fracs -> 22 fracs)
+	- Maimy can no longer perform her jump ability during a shield ability
+	- Mace spin can now be cancel with gaurd
+
+# v1
+## Maimy (NEW):
+	- Mace is now parry-able
+## Iclyn (NEW):
+	- Battle special: Throw snowball
+	- Weight: 80
+## Milne (NEW):
+	- Battle special: Crystal Lance
+	- Crystal Lance can no longer be used outside of battle special
+	- Thrown crystals were made blockable (1 atk)
+## Jana (NEW):
+	- Battle specials:
+		- Dash (ground)
+		- Dive (aerial)
+	- Dash and dive can no longer be used outside of battle special
+	- Added exhaust for wall jumping
+	- Saber beams are blockable (Small ones have 1 atk, larger ones have 2 atk and higher blockstun)
+	- Weight: 110
+## Skip (NEW):
+	- Battle special: Exchange: Converts rings into scrap
+	- Loses ALL scraps on death and mapload
+	- Dive now has 0/0 priority with a 1/1 sweetspot in the front
+	- Weight: 75
+## Willo (NEW):
+	- Battle specials:
+		- Shadow totem (ground): Spawns a temporary and destructible totem that limits the opposing team's vision of the HUD
+		- Dark ascent/descent (aerial, alternates after usage of jump ability): Boosts next jump ability's height gain if going up, spawns projectiles on land if going down
+	- Lowered height obtained from jump ability
+	- Weight: 95
