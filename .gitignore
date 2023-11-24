@@ -1,0 +1,8 @@
+battlepatch.pk3
+/builds
+*-latest.pk3
+*.lnk
+*.bak
+*.backup*
+*.dbs
+*.bat
