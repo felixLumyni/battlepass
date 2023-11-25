@@ -2,22 +2,7 @@
 
 [Changelog](https://github.com/felixLumyni/battlepatch/blob/main/battlepatch/changelog.txt)
 
-# CHARACTERS CURRENTLY PATCHED:
-- Maimy
-- HorizonChars (Milne & Iclyn)
-- Whisper
-- StephChars (Skip & Jana)
-- Willo
-
-# DEPRECATED, AND THUS REMOVED:
-- Tangle
-- Maimy
-- Whisper
-- TeamKinetic
-- Shadow
-- Robe
-- Cacee
-
+[Characters currently patched](https://github.com/users/felixLumyni/projects/2)
 # How to build
 Did you know that .pk3's are just .zip's? Yes, really. Just zip the contents of the inner "battlepatch" folder (not the folder itself!) and rename the result from .zip to .pk3 and it should be ready to load in-game. If you don't have anything to zip with, try [7Zip](https://www.7-zip.org/).
 Optional: Create a batch (.bat) file that can be used to easily test in-game
