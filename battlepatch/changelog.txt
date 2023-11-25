@@ -36,6 +36,7 @@
 	- Battle special: Crystal Lance
 	- Crystal Lance can no longer be used outside of battle special
 	- Thrown crystals were made blockable (1 atk)
+	- Weight: 115
 ## Jana (NEW):
 	- Battle specials:
 		- Dash (ground)
