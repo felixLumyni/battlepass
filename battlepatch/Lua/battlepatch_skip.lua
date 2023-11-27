@@ -4,7 +4,7 @@ local spawnscrap = function(target)
 		scrap.shadowscale = FRACUNIT/2
 		scrap.reactiontime = scrap.scale
 			
-		//Change the color
+		--Change the color
 		if target.color then
 			scrap.color = target.color
 		else
@@ -13,12 +13,12 @@ local spawnscrap = function(target)
 			
 		scrap.cusval = scrap.color
 			
-		//Do the movement
+		--Do the movement
 		P_SetObjectMomZ(scrap, FRACUNIT*10, true)
 		P_InstaThrust(scrap, FixedAngle(360*P_RandomFixed()), 10*P_RandomFixed())
 		scrap.rollangle = FixedAngle(360*P_RandomFixed())
 
-		//Big scraps
+		--Big scraps
 		if P_RandomChance(FRACUNIT/3) then
 			scrap.threshold = 2
 			if P_RandomChance(FRACUNIT/3) then
@@ -32,7 +32,7 @@ local spawnscrap = function(target)
 				scrap.frame = P_RandomRange(5,6)
 			end
 			
-		//Small scraps
+		--Small scraps
 		else
 			scrap.threshold = 1
 			scrap.scale = $*3/2
@@ -98,18 +98,18 @@ local BRUH = function(target, inflictor, source, damage, damagetype)
 		target.player.guard = 2
 		target.player.guardtics = 9
 		B.ControlThrust(target,FRACUNIT/2)
-		//Do graphical effects
+		--Do graphical effects
 		local sh = P_SpawnMobjFromMobj(target,0,0,0,MT_BATTLESHIELD)
 		sh.target = target
 		fx(target)
 		P_SpawnMobjFromMobj(inflictor,0,0,0,MT_EXPLODE)
-		//Affect source
+		--Affect source
 		if source and source.valid and source.health and source.player and source.player.powers[pw_flashing] then
 			source.player.powers[pw_flashing] = 0
 			local nega = P_SpawnMobjFromMobj(source,0,0,0,MT_NEGASHIELD)
 			nega.target = source
 		end
-		//Affect attacker
+		--Affect attacker
 		if inflictor.player then
 			if inflictor.player.powers[pw_invulnerability] then
 				inflictor.player.powers[pw_invulnerability] = 0
@@ -128,7 +128,7 @@ local BRUH = function(target, inflictor, source, damage, damagetype)
 end
 
 local skippriority = function(player)
-	if player.mo.state == S_PLAY_SKIPDIVE then
+	if player.mo and player.mo.state == S_PLAY_SKIPDIVE then
 		CBW_Battle.SetPriority(player,1,0,"amy_melee",1,1,"pounce attack")
 	end
 end
@@ -140,7 +140,14 @@ local skipbattle = function(player)
 	and player.mo.valid
 	and player.mo.skin == "skip")
 	then
+		player.wasntskip = true
 		return
+	end
+	
+	--no cheese
+	if player.wasntskip then
+		player.skipscrap = 0
+		player.wasntskip = false
 	end
 
 	--sick guard frames
@@ -233,7 +240,7 @@ local skipbattle2 = function(mo)
 end
 addHook("MobjDeath", skipbattle2, MT_PLAYER)
 
-local skipbattle3 = function(function)
+local skipbattle3 = function(player)
 	--competitive gametype in battlemod check
 	if not CBW_Battle
 	or (gametyperules&GTR_FRIENDLY and not modeattacking)

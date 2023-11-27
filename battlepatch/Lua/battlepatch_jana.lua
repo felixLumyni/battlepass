@@ -127,6 +127,21 @@ local janawallexhaust = function()
 end
 addHook("PreThinkFrame",janawallexhaust)
 
+local janapriority = function(player)
+	if player.jana and player.jana.diving then
+		CBW_Battle.SetPriority(player,1,0,"stomp",2,2,"dive attack")
+	end
+end
+
+local janacollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	if (plr[n1] and plr[n1].jana and plr[n1].jana.diving)
+		plr[n1].jana.diving = false
+		plr[n1].pflags = $ &~ PF_THOKKED
+		S_StopSoundByID(mo[n1], sfx_rekjmp)
+		P_SetObjectMomZ(mo[n1], -21 * mo[n1].scale, false)
+	end
+end
+
 local janaloaded = false
 local janaload = function()
 	if CBW_Battle and skins["jana"] and not janaloaded then
@@ -134,6 +149,8 @@ local janaload = function()
 		CBW_Battle.SkinVars["jana"] = {
 			weight = 110,
 			special = dashanddive,
+			func_priority_ext = janapriority,
+			func_collide = janacollide,
 			guard_frame = 1
 		}
 	end
@@ -155,3 +172,11 @@ addHook("MobjSpawn",function(mo)
 	mo.block_hthrust = 12
 	mo.block_vthrust = 3
 end, MT_JANA_LARGESABERBEAM)
+
+--remove piercing to prevent crashing the game on bashables
+addHook("MobjRemoved", function(mo)
+	if mo.tracer then
+		P_RemoveMobj(mo.tracer)
+		mo.tracer = nil
+	end
+end, MT_JANA_LARGESABERBEAM_HITBOX)

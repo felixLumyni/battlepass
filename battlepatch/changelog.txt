@@ -1,3 +1,13 @@
+# v4:
+## Skip:
+	- Fixed battlepatch not loading entirely lol
+	- Resets scraps to 0 when switching characters
+## Jana:
+	- Slashes no longer crash the game when trying to pierce through bashables
+	- Dive move has 1/0 priority with a 2/2 stomp sweetspot
+## ???:
+	- ???
+
 # v3
 ## Skip:
 	- Resets scraps to 0 on spawn instead of mapload
