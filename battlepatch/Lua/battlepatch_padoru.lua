@@ -8,7 +8,7 @@ local rage = function(mo,doaction)
 		player.actionrings = 0
 		return
 	end
-	if doaction then
+	if doaction == 1 then
 		mo.temprage = TICRATE * 5
 		CBW_Battle.PayRings(player, player.actionrings)
 		CBW_Battle.ApplyCooldown(player, 10 * TICRATE)
