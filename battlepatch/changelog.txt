@@ -1,3 +1,12 @@
+# v5:
+## Skip:
+	- Doesn't get as much height from diving when carrying the flag
+	- Can't use shield dive abilities when carrying the flag (shield looks invisible, but whatever)
+## ???:
+	- When going really fast (smear frames), has an extra 1 atk when enraged, 2/1 priority if not
+	- No longer hops automatically by default
+	- No longer sings server-side by default
+
 # v4:
 ## Skip:
 	- Fixed battlepatch not loading entirely lol

@@ -193,6 +193,9 @@ local skipbattle = function(player)
 				local dir = R_PointToAngle2(0,0,player.mo.momx,player.mo.momy)
 				P_InstaThrust(player.mo,dir,player.normalspeed)
 			end
+			if player.mo.momz > 0 then
+				P_SetObjectMomZ(player.mo, -gravity, true)
+			end
 				
 		--fix being able to move in unexpected cases
 		elseif player.mo.state == S_PLAY_SKIPCROUCH
@@ -252,3 +255,35 @@ local skipbattle3 = function(player)
 	player.skipscrapreset = true --dw i also hate this
 end
 addHook("PlayerSpawn", skipbattle3)
+
+local skipbattle4 = function()
+	for player in players.iterate do
+		--battlemod skip check
+		if not (CBW_Battle
+		and player.mo
+		and player.mo.valid
+		and player.mo.skin == "skip")
+		then
+			return
+		end
+		-- prevent shield dive abils with flag
+		if player.gotflagdebuff and player.powers[pw_shield] then
+			player.mo.battlepatch_storeshield = player.powers[pw_shield]
+			player.powers[pw_shield] = SH_PITY
+		end
+	end
+end
+addHook("PreThinkFrame", skipbattle4)
+
+local skipbattle5 = function()
+	for player in players.iterate do
+		if player.mo and player.mo.battlepatch_storeshield then
+			if not P_PlayerInPain(player) then -- gotta love bandaid fixes, right guys?? haha...
+				player.powers[pw_shield] = player.mo.battlepatch_storeshield
+			end
+			player.mo.battlepatch_storeshield = nil
+			--P_SpawnShieldOrb(player) -- LOOKS UGLY
+		end
+	end
+end
+addHook("PostThinkFrame", skipbattle5)
