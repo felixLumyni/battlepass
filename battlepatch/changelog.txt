@@ -1,3 +1,15 @@
+# v6:
+## Cacee (NEW):
+	- Can no longer punch out of slopes, springs, tumble and heavy bumps (skidtime)
+	- Cacee must combo to achieve 2nd and final punch
+	- New battle special: Spike Rush (triggers uppercut, then spike rush finisher)
+## ???:
+	- Better handling of server-side singing
+	Rage:
+	- Lower defense (2 -> 1)
+	- Is lost when taking damage, tumbling or having the flag
+	- Visible outline whenever the battle special is active
+
 # v5:
 ## Skip:
 	- Doesn't get as much height from diving when carrying the flag

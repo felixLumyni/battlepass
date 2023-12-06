@@ -4,7 +4,7 @@ local rage = function(mo,doaction)
 	player.actionrings = 10
 
 	if (mo.padoru and mo.padoru.angery) then
-		player.actiontext2 = "\130Rage"
+		player.actiontext = "\130"+$
 		player.actionrings = 0
 		return
 	end
@@ -22,19 +22,22 @@ local padorupriority = function(player)
 			padoruing = $ + 1
 		end
 		if player.mo.padoru.angery then
-			CBW_Battle.SetPriority(player,2+padoruing,2,nil,2,2,"angery attack")
+			CBW_Battle.SetPriority(player,2+padoruing,1,nil,nil,nil,"angery attack")
 		elseif player.mo.state == S_PLAY_PADORU or padoruing then
-			CBW_Battle.SetPriority(player,2,1,nil,2,1,"padoru attack")
+			CBW_Battle.SetPriority(player,2,1,nil,nil,nil,"speed dash attack")
 		end
 	end
 end
 
+local minaurusaid = false
 local padorubattle = function(player)
 	--for your sanity
 	if skins["padoru"] and player.padoru_urusai == nil and not player.battlepatch_padorued then
 		COM_BufInsertText(player, "padoru_stophop 1")
 		COM_BufInsertText(player, "padoru_urusai 1")
-		player.battlepatch_padorued = true
+		if splitscreen or not (player.padoru_urusai == nil) then
+			player.battlepatch_padorued = true
+		end
 	end
 
 	--battlemod padoru check
@@ -44,17 +47,50 @@ local padorubattle = function(player)
 	and player.mo.skin == "padoru")
 	then
 		return
+	elseif server and not minaurusaid then
+		--i hate local vars, so we gotta do this workaround
+		COM_BufInsertText(player, "padoru_mina_urusai 1")
+		minaurusaid = true
 	end
 
 	if player.mo.temprage then
 		player.mo.temprage = max(0, $-1)
+		--vfx
+		if not(player.mo.padorughost and player.mo.padorughost.valid) then
+			player.mo.padorughost = P_SpawnGhostMobj(player.mo) --i like your cut
+			player.mo.padorughost.colorized = true
+			player.mo.padorughost.blendmode = AST_COPY
+			player.mo.padorughost.fuse = -1
+			player.mo.padorughost.scale = $*10/9
+			player.mo.padorughost.target = player.mo
+			player.mo.padorughost.dispoffset = -1
+			player.mo.padorughost.padorughost = true
+		end
+		--disable if dmgd or tumbld
+		if P_PlayerInPain(player) or player.tumble then
+			player.mo.temprage = 0
+		end
+		--sprites are handled by padoru.wad
 		player.mo.padoru.angery = true
+		--ran out of temprage, disable everything
 		if not player.mo.temprage then
 			player.mo.padoru.angery = false
+			if player.mo.padorughost and player.mo.padorughost.valid then
+				P_RemoveMobj(player.mo.padorughost)
+			end
 		end
 	end
 end
 addHook("PlayerThink", padorubattle)
+
+local ghostchase = function(mo)
+	if (mo.padorughost and mo and mo.valid and mo.target) then
+		A_CapeChase(mo, 0, 0)
+		mo.state = mo.target.state
+		mo.frame = mo.target.frame
+	end
+end
+addHook("MobjThinker", ghostchase, MT_GHOST)
 
 local padoruloaded = false
 local padoruload = function()
