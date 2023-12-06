@@ -67,7 +67,7 @@ local padorubattle = function(player)
 			player.mo.padorughost.padorughost = true
 		end
 		--disable if dmgd or tumbld
-		if P_PlayerInPain(player) or player.tumble then
+		if P_PlayerInPain(player) or player.tumble or player.gotflagdebuff then
 			player.mo.temprage = 0
 		end
 		--sprites are handled by padoru.wad
