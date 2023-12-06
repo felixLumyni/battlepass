@@ -5,10 +5,10 @@
 	- New battle special: Spike Rush (triggers uppercut, then spike rush finisher)
 ## ???:
 	- Better handling of server-side singing
-	Rage:
-	- Lower defense (2 -> 1)
-	- Is lost when taking damage, tumbling or having the flag
-	- Visible outline whenever the battle special is active
+	- Rage:
+		- Lower defense (2 -> 1)
+		- Is lost when taking damage, tumbling or having the flag
+		- Visible outline whenever the battle special is active
 
 # v5:
 ## Skip:
