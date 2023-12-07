@@ -4,8 +4,8 @@
 	- 2nd punch can be used without the need of a combo
 	- Punches tumble players in invulnerability frames (If it was a final punch, sends opponents FLYING)
 	- Spike Combo:
-		- Renamed from "Spike Rush"
-		- Fixed ground ability, whoops
+	 - Renamed from "Spike Rush"
+	 - Fixed ground ability, whoops
 ## ???:
 	- Rage is considered an action state, meaning guard actions are disallowed during its execution.
 
@@ -17,9 +17,9 @@
 ## ???:
 	- Better handling of server-side singing
 	- Rage:
-		- Lower defense (2 -> 1)
-		- Is lost when taking damage, tumbling or having the flag
-		- Visible outline whenever the battle special is active
+	 - Lower defense (2 -> 1)
+	 - Is lost when taking damage, tumbling or having the flag
+	 - Visible outline whenever the battle special is active
 
 # v5:
 ## Skip:
@@ -81,8 +81,8 @@
 	- Weight: 115
 ## Jana (NEW):
 	- Battle specials:
-		- Dash (ground)
-		- Dive (aerial)
+	 - Dash (ground)
+	 - Dive (aerial)
 	- Dash and dive can no longer be used outside of battle special
 	- Added exhaust for wall jumping
 	- Saber beams are blockable (Small ones have 1 atk, larger ones have 2 atk and higher blockstun)
@@ -94,7 +94,7 @@
 	- Weight: 75
 ## Willo (NEW):
 	- Battle specials:
-		- Shadow totem (ground): Spawns a temporary and destructible totem that limits the opposing team's vision of the HUD
-		- Dark ascent/descent (aerial, alternates after usage of jump ability): Boosts next jump ability's height gain if going up, spawns projectiles on land if going down
+	 - Shadow totem (ground): Spawns a temporary and destructible totem that limits the opposing team's vision of the HUD
+	 - Dark ascent/descent (aerial, alternates after usage of jump ability): Boosts next jump ability's height gain if going up, spawns projectiles on land if going down
 	- Lowered height obtained from jump ability
 	- Weight: 95
