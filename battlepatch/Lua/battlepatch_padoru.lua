@@ -72,9 +72,11 @@ local padorubattle = function(player)
 		end
 		--sprites are handled by padoru.wad
 		player.mo.padoru.angery = true
+		player.actionstate = true
 		--ran out of temprage, disable everything
 		if not player.mo.temprage then
 			player.mo.padoru.angery = false
+			player.actionstate = false
 			if player.mo.padorughost and player.mo.padorughost.valid then
 				P_RemoveMobj(player.mo.padorughost)
 			end

@@ -205,7 +205,7 @@ local DoUpper = function(player) -- (copy and paste from cacee.pk3 teehee)
 	player.caceeupperspeed = FixedHypot(mo.momx, mo.momy)
 	player.caceeuppermomz = mo.momz
 	player.caceeupperangle = player.drawangle
-	player.caceeuppertimer = UPPERTIME
+	player.caceeuppertimer = 10
 	player.caceemultihits = 0
 	
 	mo.momx = 0
@@ -237,7 +237,7 @@ local DoUpper = function(player) -- (copy and paste from cacee.pk3 teehee)
 end
 
 local PUNCHCOOLDOWN = 1 --frames. only counts down after punch anim is over to prevent free combos
-local COMBOWINDOW = TICRATE/2 --amount of frames cacee has to do her next punches after connecting one
+local COMBOWINDOW = TICRATE --amount of frames cacee has to do her next punches after connecting one
 
 local caceebattle = function(player)
 	--battlemod cacee check
@@ -258,7 +258,7 @@ local caceebattle = function(player)
 	and (player.panim == PA_SPRING
 	or player.panim == PA_FALL
 	)
-
+	
 	--punch timer (positive = can't punch, negative = can punch & immunity to positive punch timer)
 	player.bpatchcaceepunch = $ or 0
 	if player.bpatchcaceepunch > 0 then
@@ -267,10 +267,12 @@ local caceebattle = function(player)
 		player.bpatchcaceepunch = $+1
 	end
 	if player.caceepunch and not(player.bpatchcaceepunch < 0) then
-		player.bpatchcaceepunch = PUNCHCOOLDOWN
-	end
-	if player.mo.pushtics then
-		player.bpatchcaceepunch = -COMBOWINDOW
+		if player.caceepunch >= 2 then
+			player.bpatchcaceepunch = PUNCHCOOLDOWN
+		end
+		if player.mo.pushtics then
+			player.bpatchcaceepunch = -COMBOWINDOW
+		end
 	end
 
 	if (didntjump
@@ -288,16 +290,16 @@ addHook("PlayerThink", caceebattle)
 
 local spikerush = function(mo,doaction)
 	local player = mo.player
-	player.actiontext = "Spike Rush"
+	player.actiontext = "Spike Combo"
 	player.actionrings = 10
-
+	
 	if player.bpatchsupercaceepunch then
 		local gravflip = (mo.flags2 & MF2_OBJECTFLIP or mo.player.powers[pw_gravityboots])
 		if (gravflip and mo.momz > mo.scale*4) or (mo.momz < -mo.scale*4 and not gravflip)
 		then
 			DoPunch(player, 3)
 			player.bpatchsupercaceepunch = false
-		elseif P_PlayerInPain(player) or player.tumble or not (player.pflags & PF_JUMPED) then
+		elseif P_PlayerInPain(player) or player.tumble then
 			player.bpatchsupercaceepunch = false
 		end
 	end
@@ -322,3 +324,18 @@ local caceeload = function()
 	end
 end
 addHook("ThinkFrame", caceeload)
+
+--handle damaging other players via punching
+addHook("MobjCollide", function(mo, inf)
+	if CBW_Battle and mo and mo.valid and mo.player and mo.player.guard != 1 and mo.player.guard != 2
+	and inf and inf.valid and inf.skin == "cacee" and inf.player and inf.player.caceepunch and mo.player.powers[pw_flashing] then
+		if inf.player.caceepunch >= 3 then
+			CBW_Battle.DoPlayerTumble(mo.player, 24, inf.angle, inf.scale*21, true)
+			P_InstaThrust(mo, inf.angle, inf.scale * 69/2)
+		else
+			CBW_Battle.DoPlayerTumble(mo.player, 24, inf.angle, inf.scale*3, true)
+			P_InstaThrust(mo, inf.angle, inf.scale * 5)
+		end
+		return false
+	end
+end, MT_PLAYER)
