@@ -1,3 +1,21 @@
+# v7
+## Cacee:
+### Punch (Spin ability)
+- Fixed super buggy tumble behaviour (teammates, vertical hitbox, guard, etc)
+- First and second punches flinch instead of tumbling
+- Punch priority fix (1 defense)
+- Increased 3rd punch launch on direct contact
+### Special (BattleMod ability)
+- Properly resets on respawn
+- Updraft from special has a different sound and trail (yellow color, like 3rd punch) to it, for telegraphing
+- Updraft from special grants less height if Cacee has already used her regular updraft
+- Updraft from special respects Cacee's camera options command
+### !!! STILL TODO: nerf regular updraft
+## ???:
+- Rage minor revert (2/2 priority)
+- Console spam Fix
+### !!! STILL TODO: corpse sprite (no clue why it doesnt work)
+
 # v6-b
 ## Cacee:
 	- Combo leniency/timer increased (allow follow-up punches after successful hits) (0.5s -> 1s)

@@ -22,7 +22,7 @@ local padorupriority = function(player)
 			padoruing = $ + 1
 		end
 		if player.mo.padoru.angery then
-			CBW_Battle.SetPriority(player,2+padoruing,1,nil,nil,nil,"angery attack")
+			CBW_Battle.SetPriority(player,2+padoruing,2,nil,nil,nil,"angery attack")
 		elseif player.mo.state == S_PLAY_PADORU or padoruing then
 			CBW_Battle.SetPriority(player,2,1,nil,nil,nil,"speed dash attack")
 		end
@@ -33,11 +33,9 @@ local minaurusaid = false
 local padorubattle = function(player)
 	--for your sanity
 	if skins["padoru"] and player.padoru_urusai == nil and not player.battlepatch_padorued then
-		COM_BufInsertText(player, "padoru_stophop 1")
-		COM_BufInsertText(player, "padoru_urusai 1")
-		if splitscreen or not (player.padoru_urusai == nil) then
-			player.battlepatch_padorued = true
-		end
+		player.padoru_stophop = true
+		player.padoru_urusai = true
+		player.battlepatch_padorued = true
 	end
 
 	--battlemod padoru check
