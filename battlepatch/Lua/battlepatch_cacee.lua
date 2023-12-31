@@ -517,6 +517,7 @@ end
 
 local guh = function(n1,n2,plr,mo,atk,def,weight,hurt,pain)
 	if plr[n1].caceepunch >= 3 then
+		mo[n2].state = S_PLAY_FALL
 		local thrust = mo[n1].scale * 69/5
 		CBW_Battle.DoPlayerTumble(plr[n2], TICRATE, mo[n1].angle, thrust, true)
 		P_Thrust(mo[n2], mo[n1].angle, mo[n1].scale * 69/6)

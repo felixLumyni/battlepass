@@ -1,3 +1,11 @@
+# v8-warmfix
+- Buffed project's name ("BattlePatch" -> "BattlePass")
+## Cacee:
+- Fixed 3rd punch not tumbling flashing players
+## ???:
+- Fixed corpsemod sprites
+- Can't use special while intangible
+
 # v7
 ## Cacee:
 ### Punch (Spin ability)
