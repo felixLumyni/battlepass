@@ -198,6 +198,10 @@ local loadwhisperbattle = function()
             shields = 0
         }
         whisperbattleloaded = true
+        --projectile names
+        mobjinfo[MT_WHISPER_LASER].name = "cyan laser"
+        mobjinfo[MT_WHISPER_ROCKET].name = "orange rocket"
+        mobjinfo[MT_WHISPER_SAW].name = "pink saw"
     end
     for p in players.iterate do
         if p.scorepenalty then
@@ -236,7 +240,7 @@ addHook("PlayerSpawn", whisperbattlespawn)
 
 --whispers cant parry their own blast radius lol
 addHook("ShouldDamage", function(mo, mobj)
-	if mobj and mobj.type == MT_WHISPER_ROCKET and (mobj.flags2 & MF2_EXPLOSION)
+	if mobj and MT_WHISPER_ROCKET and mobj.type == MT_WHISPER_ROCKET and (mobj.flags2 & MF2_EXPLOSION)
     and mobj.target == mo and mo.player then
         mo.player.guard = 0
         mo.player.guardtics = 0
@@ -246,11 +250,6 @@ addHook("ShouldDamage", function(mo, mobj)
         return true
 	end
 end)
-
---projectile names
-mobjinfo[MT_WHISPER_LASER].name = "cyan laser"
-mobjinfo[MT_WHISPER_ROCKET].name = "orange rocket"
-mobjinfo[MT_WHISPER_SAW].name = "pink saw"
 
 local whisperbruh = function(flag, mo)
     if not(mo.player and mo.skin and mo.skin == "whisper") then return end

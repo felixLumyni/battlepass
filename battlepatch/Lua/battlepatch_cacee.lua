@@ -204,13 +204,18 @@ local DoPunch = function(player, forcedtype) -- (copy and paste from cacee.pk3 t
 	player.panim = PA_DASH
 end
 
-local DoUpper = function(player, special) -- (copy and paste from cacee.pk3 teehee)
+local DoUpper = function(player, special) -- (branched from cacee.pk3 teehee)
 	local mo = player.mo
 
 	player.pflags = $&~PF_JUMPED
+	local floored = P_IsObjectOnGround(mo) or mo.eflags & MFE_JUSTHITFLOOR
 	P_DoJump(player, false)
 	player.caceeupperspeed = FixedHypot(mo.momx, mo.momy)
-	player.caceeuppermomz = (player.pflags & PF_THOKKED) and mo.momz/2 or mo.momz
+	if floored then
+		player.caceeuppermomz = mo.momz*2
+	else
+		player.caceeuppermomz = (player.pflags & PF_THOKKED) and mo.momz/2 or mo.momz
+	end
 	player.caceeupperangle = player.drawangle
 	player.caceeuppertimer = 10
 	player.caceemultihits = 0
@@ -231,7 +236,12 @@ local DoUpper = function(player, special) -- (copy and paste from cacee.pk3 teeh
 		player.charability = CA_GLIDEANDCLIMB
 	end
 	
-	if special then S_StartSound(mo, sfx_ceupr2) else S_StartSound(mo, sfx_ceuppr) end
+	if special then
+		S_StartSound(mo, sfx_ceupr2)
+		player.bpatchstartjump = true
+	else
+		S_StartSound(mo, sfx_ceuppr)
+	end
 	if P_RandomChance(FRACUNIT/70) then S_StartSound(mo, sfx_ceshok) end
 	if player.solchar and player.solchar.istransformed then
 		S_StartSound(mo, sfx_s3k48)
@@ -241,196 +251,6 @@ local DoUpper = function(player, special) -- (copy and paste from cacee.pk3 teeh
 	mo.state = S_PLAY_STND
 	mo.state = S_PLAY_TWINSPIN
 	player.panim = PA_DASH
-end
-
---Custom version of P_NukeEnemies that will hit monitors and spikes (copy and paste from cacee.pk3 teehee)
-local nukepunch = function(player, radius, candamage, wind)
-	local mo = player.mo
-	local thokmobj = P_SpawnMobjFromMobj(mo, 0,0,0, MT_THOK)
-	thokmobj.radius = radius
-	thokmobj.flags2 = $|MF2_DONTDRAW
-	thokmobj.name = candamage and "Spike Rush combo" or "Spike Rush finisher"
-	searchBlockmap("objects", function(refmobj, mobj)
-		if not (mobj and mobj.valid and mobj.health and mobj != mo)
-			return
-		end
-		
-		if candamage
-		and (not P_PlayerCanDamage(player, mobj) or mobj.flags&(MF_NOCLIP|MF_NOCLIPTHING))
-			return
-		end
-		
-		if wind and (mobj.flags & (MF_NOGRAVITY|MF_MONITOR|MF_SPRING)
-		or mobj.type == MT_SPIKE or mobj.type == MT_WALLSPIKE
-		or mobj.type == MT_BLACKEGGMAN or mobj.type == MT_CYBRAKDEMON
-		or (mobj.player and P_PlayerInPain(mobj.player)) and mobj.player.secondjump)
-			return
-		end
-		
-		if not (mobj.flags & (MF_SHOOTABLE|MF_SPRING) or mobj.battleobject)
-		and mobj.type != MT_EGGGUARD and mobj.type != MT_MINUS
-		and mobj.type != MT_SALOONDOOR and mobj.type != MT_METALSONIC_BATTLE
-		and mobj.type != MT_WALLSPIKE
-		and (mobj.type != MT_SPIKE or (P_IsObjectOnGround(mo)
-		and not (mo.eflags&MFE_ONGROUND) and player.caceepunch
-		and player.caceepunch <= 2))
-			return
-		end
-		
-		if mobj.flags & MF_SPRING and (mo.eflags & MFE_SPRUNG or not candamage
-		or mobj.info.painchance == -1)
-			return
-		end
-
-		if mobj.player
-			if mobj.player.spectator or mobj.flags&(MF_NOCLIP|MF_NOCLIPTHING)
-				return
-			elseif not CV_FindVar("friendlyfire").value
-			and G_GametypeHasTeams() and mobj.player.ctfteam == player.ctfteam
-				return
-			elseif G_TagGametype() and (mobj.player.pflags & PF_TAGIT) == (player.pflags & PF_TAGIT)
-				return
-			elseif not CV_FindVar("friendlyfire").value and not G_RingSlingerGametype()
-			and not (CBW_Battle and CBW_Battle.BattleGametype())
-				return
-			elseif not candamage and not P_IsObjectOnGround(mobj)
-				return
-			end
-		end
-
-		if abs(mo.x - mobj.x) > radius or abs(mo.y - mobj.y) > radius or abs(mo.z - mobj.z) > radius
-			return -- Workaround for possible integer overflow in the below -Red
-		end
-
-		if FixedHypot(R_PointToDist2(mo.x, mo.y, mobj.x, mobj.y),
-		(mo.z - mobj.z)*(wind and 4 or 2)) > (mobj.player and not wind and not candamage and radius*2/3 or radius)
-			return
-		end
-
-		if not candamage and mobj.type == MT_MINUS
-		and not (mobj.flags & (MF_SPECIAL|MF_SHOOTABLE))
-			mobj.flags = (mobj.flags & ~MF_NOCLIPTHING)|MF_SPECIAL|MF_SHOOTABLE
-		end
-
-		if not candamage and mobj.type == MT_EGGGUARD and mobj.tracer --nuke Egg Guard's shield!
-			P_KillMobj(mobj.tracer, mo, mo, 0)
-			return
-		end
-		
-		if mobj.type == MT_SPIKE or mobj.type == MT_WALLSPIKE
-			P_KillMobj(mobj, mo, mo, 0) --just murder spikes!
-			return
-		end
-		
-		if mobj.type == MT_SALOONDOOR
-			mobj.flags = $ | MF_SHOOTABLE | MF_ENEMY
-		end
-		
-		--Uppercut wind!
-		if wind
-			if player.caceeuppermomz
-				if (CBW_Battle)
-					mobj.momz = 5*player.caceeuppermomz/4
-				else
-					--Default
-					mobj.momz = player.caceeuppermomz*2
-				end
-			else
-				mobj.momz = mo.momz
-			end
-			
-			--Do player things
-			if mobj.player
-				if P_IsObjectOnGround(mobj)
-					local oldflags = mobj.player.pflags
-					mobj.z = $+P_MobjFlip(mobj)
-					P_ResetPlayer(mobj.player)
-					mobj.player.pflags = $|PF_JUMPED&~PF_THOKKED
-					if oldflags & PF_SPINNING
-					or (oldflags & PF_JUMPED and not (oldflags & PF_NOJUMPDAMAGE))
-						mobj.state = S_PLAY_ROLL
-					else
-						mobj.state = S_PLAY_FALL
-						mobj.player.pflags = $ | PF_NOJUMPDAMAGE
-					end
-					
-				--Look, I know this is a hack and may cause issues, but I don't care!
-				elseif P_PlayerInPain(mobj.player) and not mobj.player.secondjump
-					mobj.player.secondjump = -1
-				end
-			end
-			
-		--Springing (Annoyingly complicated...)
-		elseif mobj.flags & MF_SPRING
-			--Slam jam
-			if player.caceepunch == 3
-				DoSlam(player, true)
-			end
-			
-			--Prepare reset
-			local oldability = player.charability
-			local oldpanim = player.panim
-			local oldstate = mo.state
-			
-			--Force power spring
-			player.charability = CA_TWINSPIN
-			player.panim = PA_ABILITY
-			
-			--Do it!
-			P_DoSpring(mobj, mo)
-			
-			--Reset
-			player.charability = oldability
-			if mo.state == oldstate
-				player.panim = oldpanim
-			else
-				player.caceepunch = 0
-			end
-			
-			--Spin when hitting a horizontal spring
-			if not mobj.info.mass and mobj.info.damage
-				P_ResetPlayer(player)
-				S_StartSound(mo, sfx_spin)
-				
-				player.pflags = $ | PF_SPINNING
-				mo.state = S_PLAY_ROLL
-			end
-			
-		--That's right, we're doing this the hard way.
-		elseif mobj.type == MT_METALSONIC_BATTLE and mobj.state == S_METALSONIC_FLOAT
-			mobj.movedir = ANGLE_11hh - FixedAngle(FixedMul(AngleFixed(ANGLE_11hh),
-			FixedDiv((mobj.info.spawnhealth - mobj.health)<<FRACBITS, (mobj.info.spawnhealth-1)<<FRACBITS)))
-			if (P_RandomChance(FRACUNIT/2)) then mobj.movedir = InvAngle(mobj.movedir) end
-			mobj.threshold = 6 + (FixedMul(24<<FRACBITS, FixedDiv((mobj.info.spawnhealth - mobj.health)<<FRACBITS, (mobj.info.spawnhealth-1)<<FRACBITS))>>FRACBITS)
-			if (mobj.info.activesound) then S_StartSound(mobj, mobj.info.activesound) end
-			if (mobj.info.painchance) then mobj.state = mobj.info.painchance end
-			mobj.flags2 = $ & ~MF2_INVERTAIMABLE
-			
-		elseif candamage and mobj.player and CBW_Battle and CBW_Battle.BattleGametype()
-			CBW_Battle.PlayerTouch(mo,mobj)
-			
-		elseif candamage and mobj.battleobject and CBW_Battle
-			CBW_Battle.BashableCollision(mobj, mo)
-			
-		--Unlike the orignal script this always deals one damage, no matter what
-		else
-			if mobj.player and mobj.player.guard == -1
-				mobj.player.guard = 0
-				mobj.player.guardtics = 0
-			end
-			if not candamage and mobj.player
-				P_DamageMobj(mobj, thokmobj, mo, 1, 0)
-			else
-				P_DamageMobj(mobj, mo, mo, 1, 0)
-			end
-		end
-		
-		if mobj and mobj.valid and mobj.type == MT_SALOONDOOR
-			mobj.flags = mobj.info.flags
-		end
-	end, thokmobj)
-	
-	return player.caceepunch
 end
 
 --finally
@@ -447,7 +267,7 @@ local caceebattle = function(player)
 		return
 	end
 
-	--prevent punch for certain cases
+	--variables for preventing punch in certain cases
 	local didntjump = (not (P_IsObjectOnGround(player.mo)))
 	and (player.panim == PA_IDLE
 	or player.panim == PA_WALK
@@ -458,6 +278,17 @@ local caceebattle = function(player)
 	or player.panim == PA_FALL
 	)
 	
+	--cancel special upper's momentum with the special button instead of the jump button
+	if player.bpatchstartjump then
+		player.pflags = $ &~ PF_STARTJUMP
+		if P_IsObjectOnGround(player.mo) or player.mo.eflags & MFE_JUSTHITFLOOR
+		or (player.mo.momz > 0 and not (player.cmd.buttons & player.battleconfig_special))
+		then
+			player.mo.momz = $/2
+			player.bpatchstartjump = false
+		end
+	end
+
 	--punch timer (positive = can't punch, negative = can punch & immunity to positive punch timer)
 	player.bpatchcaceepunch = $ or 0
 	if player.bpatchcaceepunch > 0 then
@@ -474,6 +305,13 @@ local caceebattle = function(player)
 		end
 	end
 
+	--whiffed superjump
+	local floored = P_IsObjectOnGround(player.mo) or player.mo.eflags & MFE_JUSTHITFLOOR
+	if player.mo.bpatchsupercaceepunch and (floored or P_PlayerInPain(player) or player.tumble) then
+		player.mo.bpatchsupercaceepunch = 0
+		S_StartSound(player.mo, sfx_kc65)
+	end
+
 	if (didntjump
 	or sprung
 	or player.tumble
@@ -487,7 +325,7 @@ local caceebattle = function(player)
 end
 addHook("PlayerThink", caceebattle)
 
-local spikecombo = function(mo,doaction)
+local spikecombo = function(mo, doaction)
 	local player = mo.player
 	player.actiontext = "Spike Combo"
 	player.actionrings = 10
@@ -516,6 +354,9 @@ local spikecombo = function(mo,doaction)
 end
 
 local guh = function(n1,n2,plr,mo,atk,def,weight,hurt,pain)
+	if plr[n2].guardtics > 0 then
+		return
+	end
 	if plr[n1].caceepunch >= 3 then
 		mo[n2].state = S_PLAY_FALL
 		local thrust = mo[n1].scale * 69/5

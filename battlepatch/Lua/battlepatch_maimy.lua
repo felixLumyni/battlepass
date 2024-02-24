@@ -61,3 +61,75 @@ local maimybattle2 = function()
 	end
 end
 addHook("PreThinkFrame", maimybattle2)
+
+local abilityAngle = function(player)
+	if (player.pflags & PF_ANALOGMODE) then
+		local inputangle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
+		inputangle = $ + (player.cmd.angleturn << FRACBITS)
+		return inputangle
+	else
+		return player.mo and player.mo.angle or player.drawangle
+	end
+end
+
+local newmaimyspecial = function(mo, doaction)
+	local player = mo.player
+	player.actiontext = "Charge dash"
+	player.actionrings = 10
+	local speed = min(mo.scale*28, player.speed)
+
+	if doaction == 1 and player.maimy then
+		CBW_Battle.PayRings(player, player.actionrings)
+		CBW_Battle.ApplyCooldown(player, 2 * TICRATE)
+		mo.state = S_PLAY_ROLL
+		player.pflags = $ &~ PF_NOJUMPDAMAGE
+		player.pflags = $ &~ PF_STARTJUMP
+		local vspd = (mo.eflags & MFE_UNDERWATER) and player.maimy.rocketcharge/2 or player.maimy.rocketcharge
+		local hspd = max(player.speed/2, player.maimy.rocketcharge*mo.scale*4/5)
+		--P_SetObjectMomZ(mo, vspd*(FRACUNIT/2 + FRACUNIT/5)/2, false)
+		P_SetObjectMomZ(mo, (mo.eflags & MFE_UNDERWATER) and mo.scale*4 or mo.scale*8, false)
+		P_InstaThrust(mo, abilityAngle(mo.player), hspd)
+		S_StartSound(mo, sfx_cdfm62)
+		player.maimy.rocketcharge = 0
+		player.maimy.blastoff = true
+	end
+end
+
+local guh = function(n1,n2,plr,mo,atk,def,weight,hurt,pain)
+	if plr[n2].guardtics > 0 then
+		return
+	end
+	if mo[n1].skin == "maimy" and plr[n1].dashmode >= 3*TICRATE then
+		CBW_Battle.DoPlayerTumble(plr[n2], TICRATE, mo[n1].angle, plr[n1].speed, true)
+	end
+end
+
+local maimyloaded = false
+local maimyload = function()
+	if CBW_Battle and CBW_Battle.SkinVars and CBW_Battle.SkinVars["maimy"] and not maimyloaded then
+		if CBW_Battle.SkinVars["maimy"].special then
+			rawset(_G, "oldmaimyspecial", CBW_Battle.SkinVars["maimy"].special)
+		else
+			assert("https://www.youtube.com/watch?v=tDPW5CYFhT8")
+		end
+		CBW_Battle.SkinVars["maimy"].func_postcollide = guh
+		maimyloaded = true
+	end
+end
+addHook("ThinkFrame", maimyload)
+
+local maimyspecialthinker = function(player)
+	--battlemod cacee check
+	if not (CBW_Battle
+	and oldmaimyspecial
+	and player.mo
+	and player.mo.valid
+	and player.mo.skin == "maimy")
+	then
+		return
+	end
+
+	--switch specials
+	CBW_Battle.SkinVars["maimy"].special = (player.mo.state == S_MAIMY_CHARGE) and newmaimyspecial or oldmaimyspecial
+end
+addHook("PlayerThink", maimyspecialthinker)

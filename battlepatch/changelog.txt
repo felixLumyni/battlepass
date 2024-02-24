@@ -1,3 +1,15 @@
+# v9
+## Whisper:
+- Pk3 warnings no longer cry about it if Whisper isn't added
+## Maimy:
+- Has a new battle special when charging a jump ability: Charge dash! When used, Maimy uses her charge to launch herself forward
+- Tumbles enemies for a second on direct collision during dashmode
+## Cacee:
+- Fixed 3rd punch being able to tumble players even if they were guarding
+- More vertical momentum is granted when initiating the special while on the floor
+- The vertical momentum from the special updraft is now cancelled via the special button instead of jump button
+- Special punch is properly cancelled when cacee is stunned, dodging or touching a slope or floor before it finishes
+
 # v8-warmfix
 - Buffed project's name ("BattlePatch" -> "BattlePass")
 ## Cacee:
