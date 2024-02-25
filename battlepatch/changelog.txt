@@ -1,3 +1,22 @@
+# v9d (hottestfix):
+## Maimy:
+- Dashmode will not tumble if the opponent was damaged in the collision
+- Politely asked Maimy to stop having so many bugs
+
+# v9c (hotterfix):
+- Fixed exported pk3 being called "battlepatch" instead of "battlepass"
+## Maimy:
+- Charge dash also boosts dashmode
+
+# v9-b (hotfix):
+## Maimy:
+- Fixed special changing globally lol whoops
+## Cacee:
+- Fixed special punch taking way longer to trigger when underwater
+- Fixed floored and dodge punch for real now
+- Fixed inverted gravity momentum cancel
+- Added slight minimum vertical momentum to the special uppercut (so performing an uppercut right before using the special is less cheesy)
+
 # v9
 ## Whisper:
 - Pk3 warnings no longer cry about it if Whisper isn't added

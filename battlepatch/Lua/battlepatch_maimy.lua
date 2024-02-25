@@ -62,6 +62,14 @@ local maimybattle2 = function()
 end
 addHook("PreThinkFrame", maimybattle2)
 
+-- TL;DR OF EVERYTHING BELOW THIS LINE: Adding the charge dash bm ability & Dashmode tumble
+-- Some of these functions already exist in maimy's pk3 but I also had to write them here, gotta love local vars
+
+local MAIMY_BATTLE_SPECIAL_COOLDOWN = 4*TICRATE
+local MAIMY_BATTLE_SPECIAL_RING_COST = 12 
+local MAIMY_BATTLE_SPECIAL_LENGTH = 2*TICRATE
+local MAIMY_BATTLE_SPECIAL_SOUND_TIME = 10
+
 local abilityAngle = function(player)
 	if (player.pflags & PF_ANALOGMODE) then
 		local inputangle = R_PointToAngle2(0, 0, player.cmd.forwardmove*FRACUNIT, -player.cmd.sidemove*FRACUNIT)
@@ -72,13 +80,78 @@ local abilityAngle = function(player)
 	end
 end
 
+local function IsValid(a)
+	if a ~= nil then return a.valid end
+	return false
+end
+
+local function MaimyCanSpin(player)
+	return 
+	not IsValid(player.maimyMace) and 
+	not P_PlayerInPain(player) and 
+	not P_SuperReady(player) and 
+	player.exiting == 0 
+end
+
+local function MaimyMaceSpinEnd(player)
+	if IsValid(player.maimyMace) then
+		player.maimyMace.state = S_NULL
+		player.mo.state = S_PLAY_FALL
+	end
+	player.charflags = $ | SF_DASHMODE
+	player.normalspeed = skins[player.mo.skin].normalspeed
+end
+
+local function MaimyDoMaceSpin(player)
+	local playerMo = player.mo
+	-- reverbal: replaced MaimyCanSwing with MaimyCanSpin
+	if IsValid(playerMo) and MaimyCanSpin(player) then
+		player.panim = PA_ABILITY2
+		playerMo.state = S_PLAY_MAIMY_MELEE_SPIN
+		player.charflags = $ & ~SF_DASHMODE
+		player.normalspeed = (skins[playerMo.skin].normalspeed)/4
+		local maceMT, hurtboxMT
+		if player.powers[pw_super] > 0 then
+			maceMT = MT_MAIMY_SUPER_MACE
+			hurtboxMT = MT_MAIMY_SUPER_MACE_HURTBOX
+		else
+			maceMT = MT_MAIMY_MACE
+			hurtboxMT = MT_MAIMY_MACE_HURTBOX
+		end
+		player.maimyMace = P_SpawnMobjFromMobj(playerMo,0,0,0,maceMT)
+		player.maimyMace.target = playerMo
+		player.maimyMace.movedir = 0
+		if player.powers[pw_super] > 0 then
+			P_SetMobjStateNF(player.maimyMace, S_MAIMY_SUPER_MACE_SPIN)
+		else
+			P_SetMobjStateNF(player.maimyMace, S_MAIMY_MACE_SPIN)
+		end
+		local maimyMaceHurtbox = P_SpawnMobjFromMobj(playerMo,0,0,0,hurtboxMT)
+		maimyMaceHurtbox.target = playerMo
+		maimyMaceHurtbox.tracer = player.maimyMace
+		maimyMaceHurtbox.scale = 0
+		for i=1,states[S_MAIMY_RING].var1 do
+			local ring = P_SpawnMobj(0,0,0,MT_MAIMY_RING)
+			if player.powers[pw_super] > 0 then
+				P_SetMobjStateNF(ring, S_MAIMY_SUPER_RING)
+			end
+			ring.target = player.maimyMace
+			ring.tracer = playerMo
+			ring.movecount = i
+		end
+		if not P_IsObjectOnGround(playerMo) then
+			local FRACUNIT10 = FRACUNIT*10
+			P_SetObjectMomZ(playerMo,FixedMul(FRACUNIT10*P_MobjFlip(playerMo),playerMo.scale))
+		end
+	end
+end
+
 local newmaimyspecial = function(mo, doaction)
 	local player = mo.player
-	player.actiontext = "Charge dash"
-	player.actionrings = 10
-	local speed = min(mo.scale*28, player.speed)
+	player.actiontext = (player.mo.state == S_MAIMY_CHARGE) and "Charge dash" or "Mace spin"
+	player.actionrings = (player.mo.state == S_MAIMY_CHARGE) and 10 or 12
 
-	if doaction == 1 and player.maimy then
+	if doaction == 1 and (player.mo.state == S_MAIMY_CHARGE) and player.maimy then
 		CBW_Battle.PayRings(player, player.actionrings)
 		CBW_Battle.ApplyCooldown(player, 2 * TICRATE)
 		mo.state = S_PLAY_ROLL
@@ -90,13 +163,29 @@ local newmaimyspecial = function(mo, doaction)
 		P_SetObjectMomZ(mo, (mo.eflags & MFE_UNDERWATER) and mo.scale*4 or mo.scale*8, false)
 		P_InstaThrust(mo, abilityAngle(mo.player), hspd)
 		S_StartSound(mo, sfx_cdfm62)
+		player.dashmode = $+player.maimy.rocketcharge or player.maimy.rocketcharge
 		player.maimy.rocketcharge = 0
 		player.maimy.blastoff = true
+	elseif player.actionstate > 0 and (player.actiontime <= 0 or not IsValid(player.maimyMace)) then
+		MaimyMaceSpinEnd(player)
+		CBW_Battle.ApplyCooldown(player,MAIMY_BATTLE_SPECIAL_COOLDOWN)
+		player.actionstate = 0
+	elseif player.actionstate == 0 and IsValid(player.maimyMace) and player.maimyMace.state == S_MAIMY_MACE_SPIN then
+		MaimyMaceSpinEnd(player)
+		CBW_Battle.ApplyCooldown(player,MAIMY_BATTLE_SPECIAL_COOLDOWN)
+	elseif IsValid(player.maimyMace) then
+		player.canguard = false
+		player.actiontime = max($ - 1, 0)
+	elseif doaction == 1 and (CBW_Battle.CanDoAction(player)) and MaimyCanSpin(player) then
+		CBW_Battle.PayRings(player)
+		player.actiontime = MAIMY_BATTLE_SPECIAL_LENGTH
+		player.actionstate = 1
+		MaimyDoMaceSpin(player)
 	end
 end
 
 local guh = function(n1,n2,plr,mo,atk,def,weight,hurt,pain)
-	if plr[n2].guardtics > 0 then
+	if plr[n2].guardtics > 0 or hurt then
 		return
 	end
 	if mo[n1].skin == "maimy" and plr[n1].dashmode >= 3*TICRATE then
@@ -107,29 +196,9 @@ end
 local maimyloaded = false
 local maimyload = function()
 	if CBW_Battle and CBW_Battle.SkinVars and CBW_Battle.SkinVars["maimy"] and not maimyloaded then
-		if CBW_Battle.SkinVars["maimy"].special then
-			rawset(_G, "oldmaimyspecial", CBW_Battle.SkinVars["maimy"].special)
-		else
-			assert("https://www.youtube.com/watch?v=tDPW5CYFhT8")
-		end
+		CBW_Battle.SkinVars["maimy"].special = newmaimyspecial
 		CBW_Battle.SkinVars["maimy"].func_postcollide = guh
 		maimyloaded = true
 	end
 end
 addHook("ThinkFrame", maimyload)
-
-local maimyspecialthinker = function(player)
-	--battlemod cacee check
-	if not (CBW_Battle
-	and oldmaimyspecial
-	and player.mo
-	and player.mo.valid
-	and player.mo.skin == "maimy")
-	then
-		return
-	end
-
-	--switch specials
-	CBW_Battle.SkinVars["maimy"].special = (player.mo.state == S_MAIMY_CHARGE) and newmaimyspecial or oldmaimyspecial
-end
-addHook("PlayerThink", maimyspecialthinker)

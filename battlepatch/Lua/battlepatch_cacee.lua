@@ -212,10 +212,12 @@ local DoUpper = function(player, special) -- (branched from cacee.pk3 teehee)
 	P_DoJump(player, false)
 	player.caceeupperspeed = FixedHypot(mo.momx, mo.momy)
 	if floored then
-		player.caceeuppermomz = mo.momz*2
+		player.caceeuppermomz = mo.momz
 	else
 		player.caceeuppermomz = (player.pflags & PF_THOKKED) and mo.momz/2 or mo.momz
 	end
+	local minspeed = (mo.eflags&MFE_UNDERWATER) and mo.scale*4 or mo.scale*8
+	player.caceeuppermomz = max($, minspeed)
 	player.caceeupperangle = player.drawangle
 	player.caceeuppertimer = 10
 	player.caceemultihits = 0
@@ -281,9 +283,9 @@ local caceebattle = function(player)
 	--cancel special upper's momentum with the special button instead of the jump button
 	if player.bpatchstartjump then
 		player.pflags = $ &~ PF_STARTJUMP
-		if P_IsObjectOnGround(player.mo) or player.mo.eflags & MFE_JUSTHITFLOOR
-		or (player.mo.momz > 0 and not (player.cmd.buttons & player.battleconfig_special))
-		then
+		local floored = (P_IsObjectOnGround(player.mo) or player.mo.eflags & MFE_JUSTHITFLOOR) and not (player.mo.state == S_PLAY_TWINSPIN)
+		local rising = P_MobjFlip(player.mo) > 0 and player.mo.momz > 0 or player.mo.momz < 0
+		if floored or (rising and not (player.cmd.buttons & player.battleconfig_special)) then
 			player.mo.momz = $/2
 			player.bpatchstartjump = false
 		end
@@ -306,8 +308,8 @@ local caceebattle = function(player)
 	end
 
 	--whiffed superjump
-	local floored = P_IsObjectOnGround(player.mo) or player.mo.eflags & MFE_JUSTHITFLOOR
-	if player.mo.bpatchsupercaceepunch and (floored or P_PlayerInPain(player) or player.tumble) then
+	local floored = (P_IsObjectOnGround(player.mo) or player.mo.eflags & MFE_JUSTHITFLOOR) and not (player.mo.state == S_PLAY_TWINSPIN)
+	if player.mo.bpatchsupercaceepunch and (floored or P_PlayerInPain(player) or player.tumble or player.airdodge > 0) then
 		player.mo.bpatchsupercaceepunch = 0
 		S_StartSound(player.mo, sfx_kc65)
 	end
@@ -331,8 +333,9 @@ local spikecombo = function(mo, doaction)
 	player.actionrings = 10
 	
 	if mo.bpatchsupercaceepunch then
+		local thatsitimpunching = (mo.eflags&MFE_UNDERWATER) and mo.scale*2 or mo.scale*4
 		local gravflip = (mo.flags2 & MF2_OBJECTFLIP or mo.player.powers[pw_gravityboots])
-		if (gravflip and mo.momz > mo.scale*4) or (mo.momz < -mo.scale*4 and not gravflip)
+		if (gravflip and mo.momz > thatsitimpunching) or (mo.momz < -thatsitimpunching and not gravflip)
 		then
 			DoPunch(player, 3)
 			mo.bpatchsupercaceepunch = false
