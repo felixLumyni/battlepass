@@ -293,7 +293,7 @@ local caceebattle = function(player)
 
 	--punch timer (positive = can't punch, negative = can punch & immunity to positive punch timer)
 	player.bpatchcaceepunch = $ or 0
-	if player.bpatchcaceepunch > 0 then
+	if player.bpatchcaceepunch > 0 and P_IsObjectOnGround(player.mo) then
 		player.bpatchcaceepunch = $-1
 	elseif player.bpatchcaceepunch < 0 then
 		player.bpatchcaceepunch = $+1
@@ -304,6 +304,16 @@ local caceebattle = function(player)
 		end
 		if player.mo.pushtics then
 			player.bpatchcaceepunch = -COMBOWINDOW
+		end
+	end
+
+	--whiffed punch
+	if player.caceepunch and player.mo.tics > 3 then
+		if P_IsObjectOnGround(player.mo) then
+			player.mo.momx = (1+$)*4/5
+			player.mo.momy = (1+$)*4/5
+		else
+			player.bpatchcaceepunch = PUNCHCOOLDOWN
 		end
 	end
 
@@ -357,7 +367,7 @@ local spikecombo = function(mo, doaction)
 end
 
 local guh = function(n1,n2,plr,mo,atk,def,weight,hurt,pain)
-	if plr[n2].guardtics > 0 then
+	if (not plr[n2]) or plr[n2].guardtics > 0 then
 		return
 	end
 	if plr[n1].caceepunch >= 3 then

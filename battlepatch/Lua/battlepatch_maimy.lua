@@ -62,11 +62,11 @@ local maimybattle2 = function()
 end
 addHook("PreThinkFrame", maimybattle2)
 
--- TL;DR OF EVERYTHING BELOW THIS LINE: Adding the charge dash bm ability & Dashmode tumble
+-- TL;DR OF EVERYTHING BELOW THIS LINE: Adding the charge dash bm ability
 -- Some of these functions already exist in maimy's pk3 but I also had to write them here, gotta love local vars
 
 local MAIMY_BATTLE_SPECIAL_COOLDOWN = 4*TICRATE
-local MAIMY_BATTLE_SPECIAL_RING_COST = 12 
+local MAIMY_BATTLE_SPECIAL_RING_COST = 10 
 local MAIMY_BATTLE_SPECIAL_LENGTH = 2*TICRATE
 local MAIMY_BATTLE_SPECIAL_SOUND_TIME = 10
 
@@ -149,7 +149,7 @@ end
 local newmaimyspecial = function(mo, doaction)
 	local player = mo.player
 	player.actiontext = (player.mo.state == S_MAIMY_CHARGE) and "Charge dash" or "Mace spin"
-	player.actionrings = (player.mo.state == S_MAIMY_CHARGE) and 10 or 12
+	player.actionrings = MAIMY_BATTLE_SPECIAL_RING_COST
 
 	if doaction == 1 and (player.mo.state == S_MAIMY_CHARGE) and player.maimy then
 		CBW_Battle.PayRings(player, player.actionrings)
@@ -184,20 +184,10 @@ local newmaimyspecial = function(mo, doaction)
 	end
 end
 
-local guh = function(n1,n2,plr,mo,atk,def,weight,hurt,pain)
-	if plr[n2].guardtics > 0 or hurt then
-		return
-	end
-	if mo[n1].skin == "maimy" and plr[n1].dashmode >= 3*TICRATE then
-		CBW_Battle.DoPlayerTumble(plr[n2], TICRATE, mo[n1].angle, plr[n1].speed, true)
-	end
-end
-
 local maimyloaded = false
 local maimyload = function()
 	if CBW_Battle and CBW_Battle.SkinVars and CBW_Battle.SkinVars["maimy"] and not maimyloaded then
 		CBW_Battle.SkinVars["maimy"].special = newmaimyspecial
-		CBW_Battle.SkinVars["maimy"].func_postcollide = guh
 		maimyloaded = true
 	end
 end
