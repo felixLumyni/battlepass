@@ -6,6 +6,7 @@
 - Slows down while punching on the floor
 - Fixed warning on collision with training dummy
 ## Maimy:
+- Loses dashmode during recoil from blocking an attack (melee or projectile)
 - No longer tumbles enemies on direct collision during dashmode
 - Lower actioncost (12 -> 10)
 

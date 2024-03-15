@@ -58,6 +58,10 @@ local maimybattle2 = function()
 		if player.actiontime and CBW_Battle.PlayerButtonPressed(player,player.battleconfig_guard,true) then
 			player.actiontime = 0
 		end
+		--cancel dashmode on recoil
+		if player.mo.recoilthrust then
+			player.dashmode = 0
+		end
 	end
 end
 addHook("PreThinkFrame", maimybattle2)
@@ -192,12 +196,3 @@ local maimyload = function()
 	end
 end
 addHook("ThinkFrame", maimyload)
-
-local test = function(player)
-	if (player.name == "Lumyni") then
-		print("!")
-		if player.recoilthrust then print("p.recoilthrust = "..player.recoilthrust) end
-		if player.mo and player.mo.valid and player.mo.recoilthrust then print("p.mo.recoilthrust = "player.mo.recoilthrust) end
-	end
-end
-addHook("PlayerThink", test)
