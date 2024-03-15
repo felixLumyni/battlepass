@@ -44,15 +44,15 @@ addHook("ShouldDamage",maimybattle,MT_PLAYER)
 
 local maimybattle2 = function()
 	for player in players.iterate do
-		--maimy check
-		if not (player.mo and player.mo.skin == "maimy") then
+		--maimy battle check
+		if not (CBW_Battle and player.mo and player.mo.skin == "maimy") then
 			continue
 		end
 		--placing this here in case the addon is loaded before maimy
 		mobjinfo[MT_MAIMY_MACE_HURTBOX].radius = 22*FRACUNIT
-		--prevent using jump during shield abilities
-		if player.pflags & PF_SHIELDABILITY then
-			player.cmd.buttons = $&~BT_JUMP
+		--only allow one jump ability or shield ability per jump
+		if (player.pflags & PF_SHIELDABILITY) or (player.maimy and player.maimy.rocketcharge) then
+			player.pflags = $|PF_THOKKED
 		end
 		--actionstate cancel
 		if player.actiontime and CBW_Battle.PlayerButtonPressed(player,player.battleconfig_guard,true) then
@@ -64,7 +64,7 @@ local maimybattle2 = function()
 		end
 	end
 end
-addHook("PreThinkFrame", maimybattle2)
+addHook("ThinkFrame", maimybattle2)
 
 -- TL;DR OF EVERYTHING BELOW THIS LINE: Adding the charge dash bm ability
 -- Some of these functions already exist in maimy's pk3 but I also had to write them here, gotta love local vars
