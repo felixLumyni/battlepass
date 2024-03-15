@@ -307,6 +307,11 @@ local caceebattle = function(player)
 		end
 	end
 
+	--upper hit also restores punch!
+	if player.mo.state == S_PLAY_TWINSPIN and player.mo.pushtics then
+		player.bpatchcaceepunch = $ and min(0,$) or 0
+	end
+
 	--whiffed punch
 	if player.caceepunch and player.mo.tics > 3 then
 		if P_IsObjectOnGround(player.mo) then

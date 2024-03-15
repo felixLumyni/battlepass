@@ -1,6 +1,8 @@
 # v10 (INDEV):
+## Whisper:
+- Fixed nil value warning. For real now.
 ## Cacee:
-- Can only punch once when in the air
+- Can only punch once when in the air (Restored on punch/uppercut hit)
 - Slows down while punching on the floor
 - Fixed warning on collision with training dummy
 ## Maimy:

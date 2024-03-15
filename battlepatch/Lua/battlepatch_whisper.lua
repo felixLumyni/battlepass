@@ -240,7 +240,10 @@ addHook("PlayerSpawn", whisperbattlespawn)
 
 --whispers cant parry their own blast radius lol
 addHook("ShouldDamage", function(mo, mobj)
-	if mobj and MT_WHISPER_ROCKET and mobj.type == MT_WHISPER_ROCKET and (mobj.flags2 & MF2_EXPLOSION)
+    if not (skins["whisper"]) then
+        return
+    end
+    if mobj and mobj.type == MT_WHISPER_ROCKET and (mobj.flags2 & MF2_EXPLOSION)
     and mobj.target == mo and mo.player then
         mo.player.guard = 0
         mo.player.guardtics = 0
