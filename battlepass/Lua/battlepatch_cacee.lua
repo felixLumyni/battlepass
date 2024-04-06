@@ -307,7 +307,6 @@ local caceebattle = function(player)
 			player.bpatchcaceestartjump = false
 		elseif falling then
 			player.bpatchcaceestartjump = false
-			print(player.mo.momz/FRACUNIT)
 		end
 	end
 
