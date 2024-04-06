@@ -27,7 +27,7 @@ local startcrystallance = function(player)
 			P_InstaThrust(explode, player.mo.angle+ANGLE_90,explode.momy)
 			
 			//The unique stuff
-			P_TeleportMove(explode, explode.x+explode.momx*time,
+			P_SetOrigin(explode, explode.x+explode.momx*time,
 			explode.y+explode.momy*time, explode.z+explode.momz*time)
 			explode.momx = $*-1
 			explode.momy = $*-1

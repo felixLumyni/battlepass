@@ -1,4 +1,3 @@
-battlepatch.pk3
 /builds
 *-latest.pk3
 *.lnk
@@ -6,3 +5,5 @@ battlepatch.pk3
 *.backup*
 *.dbs
 *.bat
+SRB2C.py
+.SRB2C_ARGS

@@ -1,37 +1,37 @@
-freeslot("sfx_ceupr2") --the only freeslot. also bpatch stuff starts at line 246
+freeslot("sfx_ceupr2") --the only freeslot. also bpatch stuff starts at line 260
 
---spawns objects in a circle (copy and paste from cacee.pk3 teehee)
-local caceecircle = function(mobj, mobjtype, amount, ns, zoffset, scale, keepmom, color, vertical, vertangle)
+local function caceecircle(mobj, mobjtype, amount, ns, zoffset, scale, keepmom, color, vertical, vertangle, amount2)
 	local i = 0	while i < amount
-		local fa = i*(ANGLE_180/(amount/2))
+		local fa = amount2 and i*(ANGLE_180/(amount2/2)) or i*(ANGLE_180/(amount/2))
+		local fa2 = amount2 and fa-mobj.angle+ANGLE_90+ANGLE_22h or fa --this is very hacky but whatever ~lumy
 		local mo = P_SpawnMobjFromMobj(mobj,0,0,zoffset,mobjtype)
-		if mo and mo.valid then
+		if mo and mo.valid
 			local height = mo.height
 			mo.scale = scale
 			mo.target = mobj
-			if mobj.eflags&MFE_VERTICALFLIP then
+			if mobj.eflags&MFE_VERTICALFLIP
 				mo.z = $-(mo.height-height)
 			end
-			if mobjtype == MT_MINECARTSPARK then
+			if mobjtype == MT_MINECARTSPARK
 				mo.fuse = TICRATE
 			end
-			if color then
+			if color
 				mo.color = color
 				mo.colorized = true
 			end
-			if mo.type == MT_THOK then
+			if mo.type == MT_THOK
 				mo.colorized = false
 				mo.fuse = mo.tics
 			end
-			if vertical then
-				mo.momz = FixedMul(sin(fa),ns)
+			if vertical
+				mo.momz = FixedMul(sin(fa2),ns)
 				P_InstaThrust(mo, vertangle+ANGLE_90,
 				FixedMul(cos(fa),ns))
 			else
-				mo.momx = FixedMul(sin(fa),ns)
-				mo.momy = FixedMul(cos(fa),ns)
+				mo.momx = FixedMul(sin(fa2),ns)
+				mo.momy = FixedMul(cos(fa2),ns)
 			end
-			if keepmom then
+			if keepmom
 				mo.momx = $+mobj.momx
 				mo.momy = $+mobj.momy
 				mo.momz = $+mobj.momz
@@ -216,6 +216,14 @@ local DoUpper = function(player, special) -- (branched from cacee.pk3 teehee)
 	else
 		player.caceeuppermomz = (player.pflags & PF_THOKKED) and mo.momz/2 or mo.momz
 	end
+	if special then
+		S_StartSound(mo, sfx_ceupr2)
+		player.caceeuppermomz = (player.cmd.buttons & BT_JUMP) and $ or $*2 --idk why this is necessary
+		player.bpatchcaceestartjump = true
+		player.pflags = $ &~ (PF_STARTJUMP|PF_JUMPDOWN)
+	else
+		S_StartSound(mo, sfx_ceuppr)
+	end
 	local minspeed = (mo.eflags&MFE_UNDERWATER) and mo.scale*4 or mo.scale*8
 	player.caceeuppermomz = max($, minspeed)
 	player.caceeupperangle = player.drawangle
@@ -237,13 +245,7 @@ local DoUpper = function(player, special) -- (branched from cacee.pk3 teehee)
 	else
 		player.charability = CA_GLIDEANDCLIMB
 	end
-	
-	if special then
-		S_StartSound(mo, sfx_ceupr2)
-		player.bpatchstartjump = true
-	else
-		S_StartSound(mo, sfx_ceuppr)
-	end
+
 	if P_RandomChance(FRACUNIT/70) then S_StartSound(mo, sfx_ceshok) end
 	if player.solchar and player.solchar.istransformed then
 		S_StartSound(mo, sfx_s3k48)
@@ -279,21 +281,39 @@ local caceebattle = function(player)
 	and (player.panim == PA_SPRING
 	or player.panim == PA_FALL
 	)
+	local floored = (P_IsObjectOnGround(player.mo) or player.mo.eflags & MFE_JUSTHITFLOOR) and not (player.mo.state == S_PLAY_TWINSPIN)
+
+	--reset some vars
+	if floored then
+		player.mo.bpatchcaceetumblepunch = false
+		player.bpatchcaceeairpunched = false
+	end
 	
 	--cancel special upper's momentum with the special button instead of the jump button
-	if player.bpatchstartjump then
+	if player.bpatchcaceestartjump then
 		player.pflags = $ &~ PF_STARTJUMP
-		local floored = (P_IsObjectOnGround(player.mo) or player.mo.eflags & MFE_JUSTHITFLOOR) and not (player.mo.state == S_PLAY_TWINSPIN)
-		local rising = P_MobjFlip(player.mo) > 0 and player.mo.momz > 0 or player.mo.momz < 0
+		local rising = false
+		local falling = false
+		local leniency = player.mo.scale*6
+		if P_MobjFlip(player.mo) > 0 then
+			rising = player.mo.momz > 0
+			falling = player.mo.momz < -leniency
+		else
+			rising = player.mo.momz < 0
+			falling = player.mo.momz > leniency
+		end
 		if floored or (rising and not (player.cmd.buttons & player.battleconfig_special)) then
 			player.mo.momz = $/2
-			player.bpatchstartjump = false
+			player.bpatchcaceestartjump = false
+		elseif falling then
+			player.bpatchcaceestartjump = false
+			print(player.mo.momz/FRACUNIT)
 		end
 	end
 
 	--punch timer (positive = can't punch, negative = can punch & immunity to positive punch timer)
 	player.bpatchcaceepunch = $ or 0
-	if player.bpatchcaceepunch > 0 then
+	if player.bpatchcaceepunch > 0 then --and P_IsObjectOnGround(player.mo) then
 		player.bpatchcaceepunch = $-1
 	elseif player.bpatchcaceepunch < 0 then
 		player.bpatchcaceepunch = $+1
@@ -307,11 +327,36 @@ local caceebattle = function(player)
 		end
 	end
 
+	--upper hit also restores punch!
+	if player.mo.state == S_PLAY_TWINSPIN and player.mo.pushtics then
+		player.bpatchcaceepunch = $ and min(0,$) or 0
+		player.bpatchcaceeairpunched = false
+	end
+
+	if player.caceepunch then
+		--hold spin button yay
+		player.pflags = $ &~ PF_SPINDOWN
+		--first punch is slower
+		if player.caceepunch == 1 then
+			local speed = FixedHypot(player.mo.momx, player.mo.momy)
+			player.caceethrust = min(max(10*player.mo.scale,speed),20*player.mo.scale)
+		end
+		--limit air punch
+		if player.mo.tics > 3 and not (P_IsObjectOnGround(player.mo) or player.bpatchcaceepunch) then
+			player.bpatchcaceeairpunched = true
+		end
+	end
+
 	--whiffed superjump
-	local floored = (P_IsObjectOnGround(player.mo) or player.mo.eflags & MFE_JUSTHITFLOOR) and not (player.mo.state == S_PLAY_TWINSPIN)
-	if player.mo.bpatchsupercaceepunch and (floored or P_PlayerInPain(player) or player.tumble or player.airdodge > 0) then
+	local floored2 = (P_IsObjectOnGround(player.mo) or player.mo.eflags & MFE_JUSTHITFLOOR) and not (player.mo.state == S_PLAY_TWINSPIN)
+	if player.mo.bpatchsupercaceepunch and (floored2 or P_PlayerInPain(player) or player.tumble or player.airdodge > 0) then
 		player.mo.bpatchsupercaceepunch = 0
 		S_StartSound(player.mo, sfx_kc65)
+	end
+
+	--idk why this is necessary
+	if player.mo.state == S_PLAY_MELEE_LANDING then
+		player.pflags = $|PF_JUMPDOWN
 	end
 
 	if (didntjump
@@ -319,7 +364,8 @@ local caceebattle = function(player)
 	or player.tumble
 	or player.skidtime
 	or player.mo.bpatchsupercaceepunch
-	or player.bpatchcaceepunch > 0)
+	or player.bpatchcaceepunch > 0
+	or player.bpatchcaceeairpunched)
 	and not (player.bpatchcaceepunch < 0)
 	then
 		player.pflags = $|PF_SPINDOWN
@@ -338,6 +384,7 @@ local spikecombo = function(mo, doaction)
 		if (gravflip and mo.momz > thatsitimpunching) or (mo.momz < -thatsitimpunching and not gravflip)
 		then
 			DoPunch(player, 3)
+			mo.bpatchcaceetumblepunch = true
 			mo.bpatchsupercaceepunch = false
 		elseif P_PlayerInPain(player) or player.tumble then
 			mo.bpatchsupercaceepunch = false
@@ -357,16 +404,16 @@ local spikecombo = function(mo, doaction)
 end
 
 local guh = function(n1,n2,plr,mo,atk,def,weight,hurt,pain)
-	if plr[n2].guardtics > 0 then
+	if (not plr[n2]) or plr[n2].guardtics > 0 then
 		return
 	end
-	if plr[n1].caceepunch >= 3 then
+	if mo[n1].bpatchcaceetumblepunch then
 		mo[n2].state = S_PLAY_FALL
 		local thrust = mo[n1].scale * 69/5
 		CBW_Battle.DoPlayerTumble(plr[n2], TICRATE, mo[n1].angle, thrust, true)
 		P_Thrust(mo[n2], mo[n1].angle, mo[n1].scale * 69/6)
 		P_SetObjectMomZ(mo[n2], thrust, false)
-	elseif plr[n1].caceepunch and not hurt then
+	elseif plr[n1].caceepunch == 2 and not hurt then
 		local thrust = mo[n1].scale * 69/12
 		CBW_Battle.DoPlayerFlinch(plr[n2], TICRATE/2, mo[n1].angle, thrust, false)
 		P_Thrust(mo[n2], mo[n1].angle, mo[n1].scale * 69/12)
