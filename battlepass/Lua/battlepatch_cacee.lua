@@ -1,37 +1,37 @@
-freeslot("sfx_ceupr2") --the only freeslot. also bpatch stuff starts at line 246
+freeslot("sfx_ceupr2") --the only freeslot. also bpatch stuff starts at line 260
 
---spawns objects in a circle (copy and paste from cacee.pk3 teehee)
-local caceecircle = function(mobj, mobjtype, amount, ns, zoffset, scale, keepmom, color, vertical, vertangle)
+local function caceecircle(mobj, mobjtype, amount, ns, zoffset, scale, keepmom, color, vertical, vertangle, amount2)
 	local i = 0	while i < amount
-		local fa = i*(ANGLE_180/(amount/2))
+		local fa = amount2 and i*(ANGLE_180/(amount2/2)) or i*(ANGLE_180/(amount/2))
+		local fa2 = amount2 and fa-mobj.angle+ANGLE_90+ANGLE_22h or fa --this is very hacky but whatever ~lumy
 		local mo = P_SpawnMobjFromMobj(mobj,0,0,zoffset,mobjtype)
-		if mo and mo.valid then
+		if mo and mo.valid
 			local height = mo.height
 			mo.scale = scale
 			mo.target = mobj
-			if mobj.eflags&MFE_VERTICALFLIP then
+			if mobj.eflags&MFE_VERTICALFLIP
 				mo.z = $-(mo.height-height)
 			end
-			if mobjtype == MT_MINECARTSPARK then
+			if mobjtype == MT_MINECARTSPARK
 				mo.fuse = TICRATE
 			end
-			if color then
+			if color
 				mo.color = color
 				mo.colorized = true
 			end
-			if mo.type == MT_THOK then
+			if mo.type == MT_THOK
 				mo.colorized = false
 				mo.fuse = mo.tics
 			end
-			if vertical then
-				mo.momz = FixedMul(sin(fa),ns)
+			if vertical
+				mo.momz = FixedMul(sin(fa2),ns)
 				P_InstaThrust(mo, vertangle+ANGLE_90,
 				FixedMul(cos(fa),ns))
 			else
-				mo.momx = FixedMul(sin(fa),ns)
-				mo.momy = FixedMul(cos(fa),ns)
+				mo.momx = FixedMul(sin(fa2),ns)
+				mo.momy = FixedMul(cos(fa2),ns)
 			end
-			if keepmom then
+			if keepmom
 				mo.momx = $+mobj.momx
 				mo.momy = $+mobj.momy
 				mo.momz = $+mobj.momz
@@ -219,7 +219,7 @@ local DoUpper = function(player, special) -- (branched from cacee.pk3 teehee)
 	if special then
 		S_StartSound(mo, sfx_ceupr2)
 		player.caceeuppermomz = (player.cmd.buttons & BT_JUMP) and $ or $*2 --idk why this is necessary
-		player.bpatchstartjump = true
+		player.bpatchcaceestartjump = true
 		player.pflags = $ &~ (PF_STARTJUMP|PF_JUMPDOWN)
 	else
 		S_StartSound(mo, sfx_ceuppr)
@@ -290,12 +290,24 @@ local caceebattle = function(player)
 	end
 	
 	--cancel special upper's momentum with the special button instead of the jump button
-	if player.bpatchstartjump then
+	if player.bpatchcaceestartjump then
 		player.pflags = $ &~ PF_STARTJUMP
-		local rising = P_MobjFlip(player.mo) > 0 and player.mo.momz > 0 or player.mo.momz < 0
+		local rising = false
+		local falling = false
+		local leniency = player.mo.scale*6
+		if P_MobjFlip(player.mo) > 0 then
+			rising = player.mo.momz > 0
+			falling = player.mo.momz < -leniency
+		else
+			rising = player.mo.momz < 0
+			falling = player.mo.momz > leniency
+		end
 		if floored or (rising and not (player.cmd.buttons & player.battleconfig_special)) then
 			player.mo.momz = $/2
-			player.bpatchstartjump = false
+			player.bpatchcaceestartjump = false
+		elseif falling then
+			player.bpatchcaceestartjump = false
+			print(player.mo.momz/FRACUNIT)
 		end
 	end
 
@@ -340,6 +352,11 @@ local caceebattle = function(player)
 	if player.mo.bpatchsupercaceepunch and (floored2 or P_PlayerInPain(player) or player.tumble or player.airdodge > 0) then
 		player.mo.bpatchsupercaceepunch = 0
 		S_StartSound(player.mo, sfx_kc65)
+	end
+
+	--idk why this is necessary
+	if player.mo.state == S_PLAY_MELEE_LANDING then
+		player.pflags = $|PF_JUMPDOWN
 	end
 
 	if (didntjump
