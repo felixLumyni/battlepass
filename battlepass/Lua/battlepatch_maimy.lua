@@ -55,8 +55,14 @@ local maimybattle2 = function()
 			player.pflags = $|PF_THOKKED
 		end
 		--actionstate cancel
-		if player.actiontime and CBW_Battle.PlayerButtonPressed(player,player.battleconfig_guard,true) then
-			player.actiontime = 0
+		if player.actiontime then
+			if CBW_Battle.PlayerButtonPressed(player,player.battleconfig_guard,true) then
+				player.buttonhistory = $ &~ player.battleconfig_guard
+				player.actiontime = 0
+			elseif player.cmd.buttons & BT_SPIN then
+				player.pflags = $ &~ PF_SPINDOWN
+				player.actiontime = 0
+			end
 		end
 		--cancel dashmode on recoil
 		if player.mo.recoilthrust then

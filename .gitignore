@@ -6,3 +6,4 @@
 *.dbs
 *.bat
 SRB2C.py
+.SRB2C_ARGS
