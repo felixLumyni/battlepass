@@ -1,3 +1,10 @@
+# v11-b (Hotfix):
+## Cacee:
+	- Can initiate air punches after cancelling the 2nd floor punch
+	- Can no longer launch herself to the stratosphere with the uppercut
+	- **CACEEPASS (alt cacee.pk3) v2-b:**
+	 - (Hopefully) fixed spamming warning messages when colliding with nonexistant objects
+
 # v11:
 ## Cacee:
 	- Removed first punch hard speed cap

@@ -218,7 +218,6 @@ local DoUpper = function(player, special) -- (branched from cacee.pk3 teehee)
 	end
 	if special then
 		S_StartSound(mo, sfx_ceupr2)
-		player.caceeuppermomz = (player.cmd.buttons & BT_JUMP) and $ or $*2 --idk why this is necessary
 		player.bpatchcaceestartjump = true
 		player.pflags = $ &~ (PF_STARTJUMP|PF_JUMPDOWN)
 	else
@@ -313,7 +312,7 @@ local caceebattle = function(player)
 
 	--punch timer (positive = can't punch, negative = can punch & immunity to positive punch timer)
 	player.bpatchcaceepunch = $ or 0
-	if player.bpatchcaceepunch > 0 then --and P_IsObjectOnGround(player.mo) then
+	if player.bpatchcaceepunch > 0 then
 		player.bpatchcaceepunch = $-1
 	elseif player.bpatchcaceepunch < 0 then
 		player.bpatchcaceepunch = $+1
@@ -325,7 +324,7 @@ local caceebattle = function(player)
 		local cantfollowup = (player.caceepunch == 1 and player.bpatchcaceeairpunches == 1)
 		if player.caceepunch >= 2 or cantfollowup then
 			player.bpatchcaceepunch = PUNCHCOOLDOWN
-			if not P_IsObjectOnGround(player.mo) then
+			if not (P_IsObjectOnGround(player.mo) or player.panim == PA_JUMP) then
 				player.bpatchcaceeairpunches = 0
 			end
 		end
