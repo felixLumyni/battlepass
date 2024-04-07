@@ -1,6 +1,6 @@
 **Who to sue:** lumyni
 
-[Changelog](https://github.com/felixLumyni/battlepatch/blob/main/battlepatch/changelog.txt)
+[Changelog](https://github.com/felixLumyni/battlepatch/blob/main/battlepass/battlepass/changelog.txt)
 
 [Characters currently patched](https://github.com/users/felixLumyni/projects/2)
 # How to build
