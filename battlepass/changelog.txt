@@ -4,6 +4,10 @@
 	- Can no longer launch herself to the stratosphere with the uppercut
 	- **CACEEPASS (alt cacee.pk3) v2-b:**
 	 - (Hopefully) fixed spamming warning messages when colliding with nonexistant objects
+	- **CACEEPASS v2-c:**
+	 - Reverted upper radius because I forgor (200fu -> 300fu)
+	- **CACEEPASS v2-d:**
+	 - ``caceecamera`` command is forced to ``1`` in battle gametypes
 
 # v11:
 ## Cacee:
