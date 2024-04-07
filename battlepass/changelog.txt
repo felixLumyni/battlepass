@@ -1,11 +1,14 @@
 # v11:
 ## Cacee:
 	- Removed first punch hard speed cap
+	- Increased max air punches (1 -> 2)
 	- **CACEEPASS (alt cacee.pk3) v2:**
 	 - Lower first punch minimum speed (40FRAC -> 20FRAC)
-	 - Slightly increased lift radius (45° -> 50°)
+	 - Implemented speed penalty for punching at sharp angles
+	 - Slightly increased lift angle leniency (45° -> 50°)
 ## Maimy:
-	- Maimy will restore her abilities after blasting off
+	- Reverted "Can only use one jump ability or shield ability per jump"
+	- Charging rocket jump will interrupt shield abilities
 
 # v10 (Cacee's ball and chain):
 ## Other:

@@ -50,14 +50,11 @@ local maimybattle2 = function()
 		end
 		--placing this here in case the addon is loaded before maimy
 		mobjinfo[MT_MAIMY_MACE_HURTBOX].radius = 22*FRACUNIT
-		--only allow one jump ability or shield ability per jump
-		if player.maimy and player.maimy.blastoff then
-			player.maimy.blastoff = false
-			player.mo.betterblastoff = true
-			player.pflags = $ &~ (PF_THOKKED | PF_SHIELDABILITY)
-		elseif (player.maimy and player.maimy.rocketcharge) then
-			player.pflags = $|PF_THOKKED &~ PF_SHIELDABILITY
-		elseif (player.pflags & PF_SHIELDABILITY) then
+		--prevent using jump during shield abilities and vice versa
+		if (player.maimy and player.maimy.rocketcharge) then
+			player.pflags = $ &~ PF_SHIELDABILITY
+		end
+		if (player.pflags & PF_SHIELDABILITY) then
 			player.pflags = $|PF_THOKKED
 		end
 		--restore blastoff particles

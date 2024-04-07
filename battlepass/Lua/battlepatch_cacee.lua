@@ -286,6 +286,7 @@ local caceebattle = function(player)
 	--reset some vars
 	if floored then
 		player.mo.bpatchcaceetumblepunch = false
+		player.bpatchcaceeairpunched = false
 		player.bpatchcaceeairpunches = 2
 	end
 	
@@ -318,27 +319,39 @@ local caceebattle = function(player)
 		player.bpatchcaceepunch = $+1
 	end
 	if player.caceepunch and not(player.bpatchcaceepunch < 0) then
-		if player.caceepunch >= 2 then
+		if player.caceepunch == 1 and not P_IsObjectOnGround(player.mo) then
+			player.bpatchcaceeairpunched = true
+		end
+		local cantfollowup = (player.caceepunch == 1 and player.bpatchcaceeairpunches == 1)
+		if player.caceepunch >= 2 or cantfollowup then
 			player.bpatchcaceepunch = PUNCHCOOLDOWN
+			if not P_IsObjectOnGround(player.mo) then
+				player.bpatchcaceeairpunches = 0
+			end
 		end
 		if player.mo.pushtics then
 			player.bpatchcaceepunch = -COMBOWINDOW
 		end
 	end
 
+	--deduct air punches on 1st punch whiffs
+	if player.bpatchcaceeairpunches
+	and player.bpatchcaceeairpunched
+	and not (player.caceepunch or player.bpatchcaceepunch)
+	then
+		player.bpatchcaceeairpunches = $-1
+		player.bpatchcaceeairpunched = false
+	end
+
 	--upper hit also restores punch!
 	if player.mo.state == S_PLAY_TWINSPIN and player.mo.pushtics then
 		player.bpatchcaceepunch = $ and min(0,$) or 0
-		player.bpatchcaceeairpunches = false
+		player.bpatchcaceeairpunches = 2
 	end
 
+	--hold spin button QoL yay
 	if player.caceepunch then
-		--hold spin button yay
 		player.pflags = $ &~ PF_SPINDOWN
-		--limit air punch
-		if player.mo.tics > 3 and not (P_IsObjectOnGround(player.mo) or player.bpatchcaceepunch) then
-			player.bpatchcaceeairpunches = $ and $-1 or 0
-		end
 	end
 
 	--whiffed superjump
@@ -359,7 +372,7 @@ local caceebattle = function(player)
 	or player.skidtime
 	or player.mo.bpatchsupercaceepunch
 	or player.bpatchcaceepunch > 0
-	or player.bpatchcaceeairpunches <= 0)
+	or not player.bpatchcaceeairpunches)
 	and not (player.bpatchcaceepunch < 0)
 	then
 		player.pflags = $|PF_SPINDOWN
