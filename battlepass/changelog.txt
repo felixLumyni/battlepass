@@ -1,81 +1,88 @@
+# v11:
+## Cacee:
+	- Removed first punch hard speed cap
+	- **CACEEPASS (alt cacee.pk3) v2:**
+	 - Lower first punch minimum speed (40FRAC -> 20FRAC)
+	 - Slightly increased lift radius (45° -> 50°)
+## Maimy:
+	- Maimy will restore her abilities after blasting off
+
 # v10 (Cacee's ball and chain):
 ## Other:
 - Fixed Whisper's nil value warning. For real now.
 ## Cacee:
-- First punch has less speed
-- Only second punch applies flinch
-- Only special punch applies tumble
-- Can hold down spin to keep punching until the combo is finished
-- Can only punch once when in the air (Restored on punch/uppercut hit)
-- Fixed warning on collision with training dummy
-- CACEEPASS.PK3 ONLY:
-	- Updraft wind hitbox only affects a player once
-	- Lower updraft height gain
-	- Non-special updraft only lifts players directly in front of Cacee
-	- Updraft and special updraft have different telegraphing to display radius
+	- First punch has less speed
+	- Only second punch applies flinch
+	- Only special punch applies tumble
+	- Can hold down spin to keep punching until the combo is finished
+	- Can only punch once when in the air (Restored on punch/uppercut hit)
+	- Fixed warning on collision with training dummy
+	- **CACEEPASS.PK3 ONLY:**
+	 - Non-special updraft wind hitbox only affects a player once
+	 - Lower non-special updraft height gain (100% -> 75%)
+	 - Non-special updraft only lifts players directly in front of Cacee
+	 - Updraft and special updraft have different telegraphing to display new radius
 ## Maimy:
-- Can only use one jump ability or shield ability per jump (RIP elemental shield spam)
-- Loses dashmode during recoil from blocking an attack (melee or projectile)
-- No longer tumbles enemies on direct collision during dashmode
-- Lower actioncost (12 -> 10)
-- Special can now be instantly cancelled into either a guard action or a spin action
+	- Can only use one jump ability or shield ability per jump (RIP elemental shield spam)
+	- Loses dashmode during recoil from blocking an attack (melee or projectile)
+	- No longer tumbles enemies on direct collision during dashmode
+	- Lower actioncost (12 -> 10)
+	- Special can now be instantly cancelled into either a guard action or a spin action
 
 # v9d (hottestfix):
 ## Maimy:
-- Dashmode will not tumble if the opponent was damaged in the collision
-- Politely asked Maimy to stop having so many bugs
+	- Dashmode will not tumble if the opponent was damaged in the collision
+	- Politely asked Maimy to stop having so many bugs
 
 # v9c (hotterfix):
-- Fixed exported pk3 being called "battlepatch" instead of "battlepass"
+	- Fixed exported pk3 being called "battlepatch" instead of "battlepass"
 ## Maimy:
-- Charge dash also boosts dashmode
+	- Charge dash also boosts dashmode
 
 # v9-b (hotfix):
 ## Maimy:
-- Fixed special changing globally lol whoops
+	- Fixed special changing globally lol whoops
 ## Cacee:
-- Fixed special punch taking way longer to trigger when underwater
-- Fixed floored and dodge punch for real now
-- Fixed inverted gravity momentum cancel
-- Added slight minimum vertical momentum to the special uppercut (so performing an uppercut right before using the special is less cheesy)
+	- Fixed special punch taking way longer to trigger when underwater
+	- Fixed floored and dodge punch for real now
+	- Fixed inverted gravity momentum cancel
+	- Added slight minimum vertical momentum to the special uppercut (so performing an uppercut right before using the special is less cheesy)
 
 # v9
 ## Whisper:
-- Pk3 warnings no longer cry about it if Whisper isn't added
+	- Pk3 warnings no longer cry about it if Whisper isn't added
 ## Maimy:
-- Has a new battle special when charging a jump ability: Charge dash! When used, Maimy uses her charge to launch herself forward
-- Tumbles enemies for a second on direct collision during dashmode
+	- Has a new battle special when charging a jump ability: Charge dash! When used, Maimy uses her charge to launch herself forward
+	- Tumbles enemies for a second on direct collision during dashmode
 ## Cacee:
-- Fixed 3rd punch being able to tumble players even if they were guarding
-- More vertical momentum is granted when initiating the special while on the floor
-- The vertical momentum from the special updraft is now cancelled via the special button instead of jump button
-- Special punch is properly cancelled when cacee is stunned, dodging or touching a slope or floor before it finishes
+	- Fixed 3rd punch being able to tumble players even if they were guarding
+	- More vertical momentum is granted when initiating the special while on the floor
+	- The vertical momentum from the special updraft is now cancelled via the special button instead of jump button
+	- Special punch is properly cancelled when cacee is stunned, dodging or touching a slope or floor before it finishes
 
 # v8-warmfix
-- Buffed project's name ("BattlePatch" -> "BattlePass")
+	- Buffed project's name ("BattlePatch" -> "BattlePass")
 ## Cacee:
-- Fixed 3rd punch not tumbling flashing players
+	- Fixed 3rd punch not tumbling flashing players
 ## ???:
-- Fixed corpsemod sprites
-- Can't use special while intangible
+	- Fixed corpsemod sprites
+	- Can't use special while intangible
 
 # v7
 ## Cacee:
 ### Punch (Spin ability)
-- Fixed super buggy tumble behaviour (teammates, vertical hitbox, guard, etc)
-- First and second punches flinch instead of tumbling
-- Punch priority fix (1 defense)
-- Increased 3rd punch launch on direct contact
+	- Fixed super buggy tumble behaviour (teammates, vertical hitbox, guard, etc)
+	- First and second punches flinch instead of tumbling
+	- Punch priority fix (1 defense)
+	- Increased 3rd punch launch on direct contact
 ### Special (BattleMod ability)
-- Properly resets on respawn
-- Updraft from special has a different sound and trail (yellow color, like 3rd punch) to it, for telegraphing
-- Updraft from special grants less height if Cacee has already used her regular updraft
-- Updraft from special respects Cacee's camera options command
-### !!! STILL TODO: nerf regular updraft
+	- Properly resets on respawn
+	- Updraft from special has a different sound and trail (yellow color, like 3rd punch) to it, for telegraphing
+	- Updraft from special grants less height if Cacee has already used her regular updraft
+	- Updraft from special respects Cacee's camera options command
 ## ???:
-- Rage minor revert (2/2 priority)
-- Console spam Fix
-### !!! STILL TODO: corpse sprite (no clue why it doesnt work)
+	- Rage minor revert (2/2 priority)
+	- Console spam Fix
 
 # v6-b
 ## Cacee:

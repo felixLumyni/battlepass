@@ -286,7 +286,7 @@ local caceebattle = function(player)
 	--reset some vars
 	if floored then
 		player.mo.bpatchcaceetumblepunch = false
-		player.bpatchcaceeairpunched = false
+		player.bpatchcaceeairpunches = 2
 	end
 	
 	--cancel special upper's momentum with the special button instead of the jump button
@@ -329,20 +329,15 @@ local caceebattle = function(player)
 	--upper hit also restores punch!
 	if player.mo.state == S_PLAY_TWINSPIN and player.mo.pushtics then
 		player.bpatchcaceepunch = $ and min(0,$) or 0
-		player.bpatchcaceeairpunched = false
+		player.bpatchcaceeairpunches = false
 	end
 
 	if player.caceepunch then
 		--hold spin button yay
 		player.pflags = $ &~ PF_SPINDOWN
-		--first punch is slower
-		if player.caceepunch == 1 then
-			local speed = FixedHypot(player.mo.momx, player.mo.momy)
-			player.caceethrust = min(max(10*player.mo.scale,speed),20*player.mo.scale)
-		end
 		--limit air punch
 		if player.mo.tics > 3 and not (P_IsObjectOnGround(player.mo) or player.bpatchcaceepunch) then
-			player.bpatchcaceeairpunched = true
+			player.bpatchcaceeairpunches = $ and $-1 or 0
 		end
 	end
 
@@ -364,7 +359,7 @@ local caceebattle = function(player)
 	or player.skidtime
 	or player.mo.bpatchsupercaceepunch
 	or player.bpatchcaceepunch > 0
-	or player.bpatchcaceeairpunched)
+	or player.bpatchcaceeairpunches <= 0)
 	and not (player.bpatchcaceepunch < 0)
 	then
 		player.pflags = $|PF_SPINDOWN
@@ -422,7 +417,6 @@ end
 local caceeloaded = false
 local caceeload = function()
 	if CBW_Battle and CBW_Battle.SkinVars and CBW_Battle.SkinVars["cacee"] and not caceeloaded then
-
 		local function GarbagePriority5(player) --modified from cacee to have min. 1 defense all around
 			if player.caceepunch == 3 then -- Punch Combo Finisher.
 				CBW_Battle.SetPriority(player, 1, 1, "cacee_punch", 2, 1, "Spike Rush finisher")
