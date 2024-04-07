@@ -337,7 +337,7 @@ local caceebattle = function(player)
 	--deduct air punches on 1st punch whiffs
 	if player.bpatchcaceeairpunches
 	and player.bpatchcaceeairpunched
-	and not (player.caceepunch or player.bpatchcaceepunch)
+	and not (player.caceepunch or player.bpatchcaceepunch or player.panim == PA_JUMP)
 	then
 		player.bpatchcaceeairpunches = $-1
 		player.bpatchcaceeairpunched = false
@@ -349,9 +349,24 @@ local caceebattle = function(player)
 		player.bpatchcaceeairpunches = 2
 	end
 
-	--hold spin button QoL yay
 	if player.caceepunch then
+		--hold spin button QoL yay
 		player.pflags = $ &~ PF_SPINDOWN
+		--uh oh.. speed penalty for turning too sharply during a floored punch
+		if floored and abs(getinputangle(player) - player.drawangle) > ANG10 then
+			if leveltime % 2 == 0 then
+				S_StartSound(player.mo,sfx_s3k7e,255/3,player)
+				local r = player.mo.radius/player.mo.scale
+				local dust = P_SpawnMobj(
+					P_RandomRange(-r,r)*player.mo.scale+player.mo.x,
+					P_RandomRange(-r,r)*player.mo.scale+player.mo.y,
+					player.mo.z,
+					MT_DUST
+				)
+				if dust and dust.valid then dust.scale = player.mo.scale end
+			end
+			player.caceethrust = max(player.mo.scale*10, $-player.mo.scale*4)
+		end
 	end
 
 	--whiffed superjump

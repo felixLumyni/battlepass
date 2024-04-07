@@ -1,11 +1,12 @@
 # v11:
 ## Cacee:
 	- Removed first punch hard speed cap
+	- Quickly loses speed when turning at sharp angles in the floor during a punch
 	- Increased max air punches (1 -> 2)
 	- **CACEEPASS (alt cacee.pk3) v2:**
 	 - Lower first punch minimum speed (40FRAC -> 20FRAC)
-	 - Implemented speed penalty for punching at sharp angles
 	 - Slightly increased lift angle leniency (45° -> 50°)
+	 - Lift angle depends on input angle
 ## Maimy:
 	- Reverted "Can only use one jump ability or shield ability per jump"
 	- Charging rocket jump will interrupt shield abilities
