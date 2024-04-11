@@ -284,7 +284,6 @@ local caceebattle = function(player)
 
 	--reset some vars
 	if floored then
-		player.mo.bpatchcaceetumblepunch = false
 		player.bpatchcaceeairpunched = false
 		player.bpatchcaceeairpunches = 2
 	end
@@ -374,6 +373,11 @@ local caceebattle = function(player)
 		player.mo.bpatchsupercaceepunch = 0
 		S_StartSound(player.mo, sfx_kc65)
 	end
+	--whiffed superpunch
+	if player.mo.bpatchcaceetumblepunch and (floored2 or P_PlayerInPain(player) or player.tumble or player.airdodge > 0) then
+		player.mo.bpatchcaceetumblepunch = false
+		S_StartSound(player.mo, sfx_kc65)
+	end
 
 	--idk why this is necessary
 	if player.mo.state == S_PLAY_MELEE_LANDING then
@@ -429,11 +433,12 @@ local guh = function(n1,n2,plr,mo,atk,def,weight,hurt,pain)
 		return
 	end
 	if mo[n1].bpatchcaceetumblepunch then
-		mo[n2].state = S_PLAY_FALL
-		local thrust = mo[n1].scale * 69/5
-		CBW_Battle.DoPlayerTumble(plr[n2], TICRATE, mo[n1].angle, thrust, true)
-		P_Thrust(mo[n2], mo[n1].angle, mo[n1].scale * 69/6)
-		P_SetObjectMomZ(mo[n2], thrust, false)
+		local thrust = mo[n1].scale * 69
+		if not hurt then
+			mo[n2].state = S_PLAY_FALL
+			CBW_Battle.DoPlayerTumble(plr[n2], TICRATE, mo[n1].angle, thrust/5, true)
+		end
+		P_Thrust(mo[n2], mo[n1].angle, thrust/6)
 	elseif plr[n1].caceepunch == 2 and not hurt then
 		local thrust = mo[n1].scale * 69/12
 		CBW_Battle.DoPlayerFlinch(plr[n2], TICRATE/2, mo[n1].angle, thrust, false)
