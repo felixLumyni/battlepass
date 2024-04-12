@@ -6,8 +6,8 @@
 	### CACEEPASS v3 (Alt. CL_Cacee-v2.pk3):
 	- Fixed consistency of powersprings (??% -> 100%)
 	- Fixed being able to flinch from fire damage even when invincible
-	- Lowered uppercut windbox cone radius
-	- It is also possible to use ``caceecamera 3`` in battle gametypes
+	- Lowered uppercut windbox cone radius to match with the particles (50° -> 40°)
+	- Uppercut direction and cone radius now respects ``caceecamera``
 
 # v11-b (Hotfix):
 ## Cacee:
