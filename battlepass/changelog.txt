@@ -4,11 +4,12 @@
 	- Fixed special punch tumble happening even if either of the players took damage
 	- Fixed special punch state applying extra vertical thrust on tumble
 	- Fixed special punch state persisting through other states (damage, airdodge, etc)
-	### CACEEPASS v3 (Alt. CL_Cacee-v2.pk3):
-	- Fixed consistency of powersprings (??% -> 100%)
-	- Fixed being able to feel pain from fire damage even when invincible
-	- Lowered uppercut windbox cone radius to match with the particles (50° -> 40°)
-	- Uppercut direction and cone radius now respects ``caceecamera``
+	- **CACEEPASS v3 and v4 (Alt. CL_Cacee-v2.pk3):**
+	 - Fixed consistency of powersprings (??% -> 100%)
+	 - Fixed being able to feel pain from fire damage even when invincible
+	 - Lowered uppercut windbox cone radius to match with the particles (50° -> 40°)
+	 - Uppercut direction and cone radius now respects ``caceecamera``
+	 - Simple mode users are immune to ``caceecamera`` restrictions
 
 # v11-b (Hotfix):
 ## Cacee:
