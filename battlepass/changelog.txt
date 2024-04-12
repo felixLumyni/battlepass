@@ -1,5 +1,6 @@
 # v12 - Cacee fixes
 ## Cacee:
+	- Special punch tumble is now explicitly stunbreak-able
 	- Fixed special punch tumble happening even if either of the players took damage
 	- Fixed special punch state applying extra vertical thrust on tumble
 	- Fixed special punch state persisting through other states (damage, airdodge, etc)

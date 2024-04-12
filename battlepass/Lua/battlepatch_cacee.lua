@@ -376,7 +376,6 @@ local caceebattle = function(player)
 	--whiffed superpunch
 	if player.mo.bpatchcaceetumblepunch and (floored2 or P_PlayerInPain(player) or player.tumble or player.airdodge > 0) then
 		player.mo.bpatchcaceetumblepunch = false
-		S_StartSound(player.mo, sfx_kc65)
 	end
 
 	--idk why this is necessary
@@ -436,7 +435,7 @@ local guh = function(n1,n2,plr,mo,atk,def,weight,hurt,pain)
 		local thrust = mo[n1].scale * 69
 		if not hurt then
 			mo[n2].state = S_PLAY_FALL
-			CBW_Battle.DoPlayerTumble(plr[n2], TICRATE, mo[n1].angle, thrust/5, true)
+			CBW_Battle.DoPlayerTumble(plr[n2], TICRATE, mo[n1].angle, thrust/5, true, false)
 		end
 		P_Thrust(mo[n2], mo[n1].angle, thrust/6)
 	elseif plr[n1].caceepunch == 2 and not hurt then
