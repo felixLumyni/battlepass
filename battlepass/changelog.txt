@@ -1,3 +1,7 @@
+# v13 - Fastest fix in the west
+## Ray:
+	- Fixed being able to get a huge burst of speed by collecting the flag during dive startups
+
 # v12 - Cacee fixes
 ## Cacee:
 	- Special punch tumble is now explicitly stunbreak-able
