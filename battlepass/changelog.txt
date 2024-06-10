@@ -4,7 +4,7 @@
 	- **CACEEPASS v5: THE POT IS BACK O_O**
 	 - All the previous changes from BP, plus:
 	 - Restored ability to Pot Of Pain (no more tumble, no more 2nd uppercut with AoE wind hitbox)
-	 - The Pot Of Pain is now a cactus-type object (not solid, deals spike damage, huggable by Cacee)
+	 - The Pot Of Pain is now a cactus-like hazard (not solid, deals spike damage, huggable by Cacee)
 	 - Punching objects briefly allows the usage of final punch (still only available after the 2nd punch)
 	 - Fixed Cacee's collision wish bashables being extremely inconsistent when trying to punch them
 	 - Fixed Cacee being able to cancel the final punch land state depending on addon load order
@@ -18,12 +18,25 @@
 	  - Lower angle leniency (~67.5° -> 45°)
 	 - Lowered Cacee's all-around defense to 0 for ALL moves (true no-spin)
 	 - Lowered flinch timer of second punch (0.5s -> 0.3s), other punches still have no flinch
-## Jana (Thanks JAB and Smol!):
-	- (TODO!!) Add JAB's changes to the pk3
+## Jana (Thanks JAB and Smol!): 
+	- Added a failsafe to charged slash to make sure the charge is lost when its used
+	- Dash's cooldown will pause at a certain point if she remains air born while dashing
+	- Gave her projectiles mobjinfo names
+	- Dive attack priority: 1/1, (2/2 stomp sweetspot)
+	- Dash slash priority: 1/1, (1/2 glide sweetspot)
+	- Overhead slash priority: 0/0, (1/0 glide sweetspot)
+	- Combo slash's priority: 0/0 (relying entirely on the hitbox to damage/block)
+	- Saber beams are blockable (Small ones have 1 atk and only damage on tumble, larger ones have 1 atk and higher blockstun)
+	- Added collision hooks to the sword's hitbox for players/projectiles
+	- Sword hitbox will not collide during the start and end of her attack animations
+	- Sword can clash with weak (an attack of 1) projectiles
+	- Players with 1 defense or more can block her sword
+	- Her sword can clash with other swords
+	- Sword's hitbox during dash slash has reduced push time, it pierces defense if timed right or if the player is in a corner
+	- The effects of the sword clashing with a weak projectile is reduced during dash slash
+	- Fixed some bugs involving charged slash being usable during air dodge/guard, kept one as a "feature"
+	- Fixed a bug where she cant respawn if she died while her exhaust is up
 	- Fixed Jana's walljump exhaust system only working reliably in singleplayer
-	- Sword slash projectiles now inflict tumble for a very short duration instead of damaging
-	 - If the player was already in tumble, they get damaged
-	- Uh, idk
 
 # v13 - Fastest fix in the west
 ## Ray:

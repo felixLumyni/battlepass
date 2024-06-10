@@ -117,7 +117,7 @@ addHook("PlayerThink",janabattle)
 local janawallexhaust = function()
 	for player in players.iterate do
 		if not (player.jana and player.mo and player.mo.skin == "jana") then
-			return
+			continue
 		end
 		if player.jana.dashing != 0 then
 			player.actioncooldown = max(TICRATE,$)
