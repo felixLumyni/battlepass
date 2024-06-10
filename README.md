@@ -2,7 +2,7 @@
 
 [Changelog](https://github.com/felixLumyni/battlepass/blob/main/battlepass/changelog.txt)
 
-[Characters currently patched](https://github.com/users/felixLumyni/projects/2)
+[Characters currently patched](https://github.com/users/JabSphere/projects/1)
 # How to build
 Did you know that .pk3's are just .zip's? Yes, really. Just zip the contents of the inner "battlepatch" folder (not the folder itself!) and rename the result from .zip to .pk3 and it should be ready to load in-game. If you don't have anything to zip with, try [7Zip](https://www.7-zip.org/).
 
