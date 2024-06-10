@@ -1,8 +1,3 @@
-mobjinfo[MT_JANA_SMALLSABERBEAM].name = "saber beam"
-mobjinfo[MT_JANA_LARGESABERBEAM_HITBOX].name = "large saber beam"
-mobjinfo[MT_JANA_LASER].name = "rekkohua"
-mobjinfo[MT_JANA_LASER_FIRE].name = "rekkohua"
-
 local function inputangle(player) 
 	if (twodlevel or player.mo.flags2 & MF2_TWOD) then
 		return player.mo.angle
@@ -186,6 +181,11 @@ local janaload = function()
 			func_collide = janacollide,
 			guard_frame = 1
 		}
+		mobjinfo[MT_JANA_SMALLSABERBEAM].name = "saber beam"
+		mobjinfo[MT_JANA_SABERHITBOX].name = "saber"
+		mobjinfo[MT_JANA_LARGESABERBEAM_HITBOX].name = "large saber beam"
+		mobjinfo[MT_JANA_LASER].name = "rekkohua"
+		mobjinfo[MT_JANA_LASER_FIRE].name = "rekkohua"
 	end
 end
 addHook("ThinkFrame", janaload)
