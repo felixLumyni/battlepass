@@ -127,7 +127,7 @@ local janawallexhaust = function()
 		end
 		--fully exhausted
 		if (player.exhaustmeter<=1 or (player.gotflagdebuff and player.jana.walltouch)) then
-			if player.deadtimer > 0 then // prevent not reswapning soft lock
+			if player.deadtimer > 0 then // prevent not respawning soft lock
 			return end
 			--sound cue
 			if (player.cmd.buttons & BT_JUMP)
@@ -206,7 +206,10 @@ addHook("MobjSpawn",function(mo)
 	mo.block_vthrust = 3
 end, MT_JANA_LARGESABERBEAM_HITBOX)
 
-addHook("MobjThinker",function(mo) // fail safe to prevent her from keepimg a charge after just useing one
+addHook("MobjThinker",function(mo) // fail safe to prevent her from keeping a charge after just using one
+	if not(mo.valid) then
+		return
+	end
 	if not mo.setonce and mo.target and mo.target.valid then
 		local jes = mo.target.player.janaEnergySaber
 		jes.chargeTime = 0
@@ -224,7 +227,7 @@ addHook("ShouldDamage", function(pmo, inflictor, source, damage, damagetype) // 
 	if not inflictor or not inflictor.valid then return end
 	if inflictor.type != MT_JANA_SMALLSABERBEAM then return end
 	if not source return false end
-	if  pmo.player and pmo.state == S_PLAY_PAIN then return end // let it damage players if there already in tumble
+	if  pmo.player and pmo.state == S_PLAY_PAIN then return end // let it damage players if they are already in tumble
 	if pmo.player and source and source.valid and source.player and not(B.MyTeam(source.player,pmo.player)) and not P_PlayerInPain(pmo.player) then
 		local vulnerable = B.PlayerCanBeDamaged(pmo.player)
 
