@@ -1,23 +1,22 @@
+# v15 - I heard some whispering...
+## Whisper:
+	- Whisper is 0/0 no matter what, even when in spin state or when using shield specials
+		- Exceptions: Invulnerability (only defense), Hammer (atk sweetspot), Umbrella (def sweetspot)
+	- (TODO) Added ammo HUD
+	- Added local sounds for: Firing last shot, trying to fire without ammo, reload start, reload end
+	- Whisper's top speed is 50% while reloading
+	- Added an idicator for when Whisper is reloading - get her!! (placeholder sprite)
+	- The action HUD flashes when attempting to use a weapon without enough ammo
+	- Laser: Can only bounce once
+	- Rocket: Unchanged, for now...
+	- Hammer: Updated priority: 0/0 with 2atk on front
+	- Spike: Tumbles Whisper if parried
+	- Umbrella: Updated priority: 0/0 with 3def on top
+	- Fixed hammer/spike sprites showing up for 1 frame when trying to use them without ammo
+
 # v14 - Major Cacee revert and rework, Jana fixes & tweaks
 ## Cacee:
 	- Removed from the pk3, all future changes are now in caceepass
-	- **CACEEPASS v5: THE POT IS BACK O_O**
-	 - All the previous changes from BP, plus:
-	 - Restored ability to Pot Of Pain (no more tumble, no more 2nd uppercut with AoE wind hitbox)
-	 - The Pot Of Pain is now a cactus-like hazard (not solid, deals spike damage, huggable by Cacee)
-	 - Punching objects briefly allows the usage of final punch (still only available after the 2nd punch)
-	 - Fixed Cacee's collision wish bashables being extremely inconsistent when trying to punch them
-	 - Fixed Cacee being able to cancel the final punch land state depending on addon load order
-	 - Hitting bashables with an uppercut prevents Cacee from being able to repeat the move infinitely
-	 - Removed aerial special
-	 - Removed speed penalty from turning too sharply during a floored punch
-	 - Removed ``caceecamera`` restrictions
-	 - Removed P_TeleportMove console warnings
-	 - Cacee's punch sweetspot leniency is now identical to Amy's melee sweetspot, which basically means:
-	  - More consistent collisions (it uses Battle's innate angle-checking functions)
-	  - Lower angle leniency (~67.5° -> 45°)
-	 - Lowered Cacee's all-around defense to 0 for ALL moves (true no-spin)
-	 - Lowered flinch timer of second punch (0.5s -> 0.3s), other punches still have no flinch
 ## Jana (Thanks JAB and Smol!): 
 	- Added a failsafe to charged slash to make sure the charge is lost when its used
 	- Dash's cooldown will pause at a certain point if she remains air born while dashing

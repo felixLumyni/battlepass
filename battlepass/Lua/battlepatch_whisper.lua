@@ -1,3 +1,15 @@
+states[freeslot("S_RELOAD")] = {
+	sprite = freeslot("SPR_RELO"),
+	frame = FF_TRANS30,
+	tics = 8,
+	nexstate = S_NULL
+}
+
+sfxinfo[freeslot("sfx_lstsht")].caption = "Last shot"
+sfxinfo[freeslot("sfx_noammo")].caption = "No ammo"
+sfxinfo[freeslot("sfx_rlstrt")].caption = "Reloading..."
+sfxinfo[freeslot("sfx_rlfnsh")].caption = "Reload finished"
+
 -- No fun allowed (by default)
 local funny = false
 
@@ -22,10 +34,10 @@ local function setFunny(value)
 	-- makes it hilarious lmfao
 	silv_TKextra[MT_WHISPER_LASER].nograb = not funny
 	-- Destroy rocket on grab
-	silv_TKextra[MT_WHISPER_ROCKET] =	{
-			grabf = function(mo)
-			P_KillMobj(mo)
-	end
+	silv_TKextra[MT_WHISPER_ROCKET] = {
+		grabf = function(mo)
+		    P_KillMobj(mo)
+	    end
 	}
 end
 
@@ -50,12 +62,18 @@ CV_RegisterVar({
 
 -- functions taken from whisper's battle lua
 local WhisperFunction = function(player)
-    if player.mo.state == S_PLAY_MELEE then 
-        CBW_Battle.SetPriority(player,1,0,"amy_melee",2,3,"blue cube hammer")
-     end	
-     if player.mo.state == S_PLAY_GLIDE then 
-        CBW_Battle.SetPriority(player,0,0,"tails_fly",0,2,nil)
-     end
+    if player.powers[pw_super] or player.powers[pw_invulnerability] then
+        CBW_Battle.SetPriority(player,0,99,nil,0,0,"protected")
+        if player.mo.state == S_PLAY_MELEE then
+            CBW_Battle.SetPriority(player,0,99,"amy_melee",2,99,"blue cube hammer")
+        end
+    elseif player.mo.state == S_PLAY_GLIDE then
+        CBW_Battle.SetPriority(player,0,0,"tails_fly",0,3,"umbrella")
+    elseif player.mo.state == S_PLAY_MELEE then 
+        CBW_Battle.SetPriority(player,0,0,"amy_melee",2,0,"blue cube hammer")
+    else
+        CBW_Battle.SetPriority(player,0,0,nil,0,0,"defenseless")
+    end
 end
 
 local WhisperExhaust = function(player)
@@ -94,41 +112,112 @@ local reload = function(mo, doaction)
     if player.whisperammo == nil then
         player.whisperammo = maxammo
     end
-    player.actiontext = "Reload ("..player.whisperammo.."/"..maxammo..")"
+    local color = S_SoundPlaying(mo, sfx_noammo) and "\143" or ""
+    player.actiontext = color+"Reload ("..player.whisperammo.."/"..maxammo..")"
 	player.actionrings = maxammo
     if doaction == 1 then
         if player.rings >= player.actionrings and not player.actioncooldown then
             player.whisperammo = maxammo
             CBW_Battle.PayRings(player, player.actionrings)
             CBW_Battle.ApplyCooldown(player, reloadtime)
+            S_StartSound(mo, sfx_rlstrt, player)
         elseif not player.actioncooldown then --not enough rings
             player.whisperammo = min(maxammo, $ + maxammo/2)
             CBW_Battle.PayRings(player, player.actionrings)
             CBW_Battle.ApplyCooldown(player, reloadtime)
+            S_StartSound(mo, sfx_rlstrt, player)
         end
+    end
+    if (player.actioncooldown) then
+        player.normalspeed = skins[mo.skin].normalspeed/2
+        mo.whisperspeedpenalty = true
+        if not (player.reloadobj and player.reloadobj.valid) then
+            local reload = P_SpawnMobjFromMobj(mo, 0, 0, 0, MT_THOK) 
+		    reload.state = S_RELOAD
+		    player.reloadobj = reload
+        else
+            P_MoveOrigin(player.reloadobj, mo.x, mo.y, mo.z)
+            player.reloadobj.tics = player.actioncooldown
+            player.reloadobj.fuse = player.reloadobj.tics
+            player.reloadobj.rollangle = $-ANG10
+        end
+    elseif (mo.whisperspeedpenalty) then
+        if player.reloadobj and player.reloadobj.valid then
+            P_RemoveMobj(player.reloadobj)
+        end
+        S_StartSound(mo, sfx_rlfnsh, player)
+        player.normalspeed = skins[mo.skin].normalspeed
+        mo.whisperspeedpenalty = false
     end
 end
 
-local whisperammothinker = function()
+local payammo = function(player, amount)
+    player.whisperammo = $ - amount
+    player.whisperammomove = 5
+    if player.whisperammo == 0 then
+        S_StartSound(player.mo, sfx_lstsht, player)
+    end
+end
+
+local whisperammothinker = function() --laser and rocket
+    local lasercost = CV_FindVar("whisperbattle_lasercost").value
+    local rocketcost = CV_FindVar("whisperbattle_rocketcost").value
     for p in players.iterate do
         local WHISPERSTARTLAG = 7 --taken from whisper's main.lua
         local WHISPERCHARGE = TICRATE*7/10 --^ same thing
         if p.whisperammo == nil then
             p.whisperammo = CV_FindVar("whisperbattle_maxammo").value
         end
-        local rocketcost = CV_FindVar("whisperbattle_rocketcost").value
-        local lasercost = CV_FindVar("whisperbattle_lasercost").value
-        local hammercost = CV_FindVar("whisperbattle_hammercost").value
-        local sawcost = CV_FindVar("whisperbattle_sawcost").value
+        if p.whisperammomove then
+            p.whisperammomove = max($-1, 0)
+        end
+        --for future failed saw/hammer attempts
+        if p.mo and p.mo.skin == "whisper" then
+            p.mo.whispermomx = p.mo.momx
+            p.mo.whispermomy = p.mo.momy
+            p.mo.whispermomz = p.mo.momz
+            p.mo.whisperangle = p.drawangle
+        end
+        --gun (orange rocket or cyan laser)
+        if not (p.cmd.buttons & BT_SPIN) and p.whispercharge and p.whispercharge >= WHISPERSTARTLAG then
+            --jammed
+            if p.actioncooldown then
+                p.whispercharge = 0
+                continue --dont try to use ammo!!!!
+            end
+            --must have tried to fire
+            local preammo = p.whisperammo or 0
+            p.whisperammo = $ or 0
+            if p.whispercharge >= WHISPERCHARGE then
+                payammo(p, rocketcost)
+            else
+                payammo(p, lasercost)
+            end
+            --ammo went in the negatives, so not enough ammo. cancel the attempt
+            if p.whisperammo < 0 then
+                p.whisperammo = preammo
+                p.whispercharge = 0
+                S_StartSound(p.mo,sfx_noammo,p)
+            end
+        end
+        --hi
+    end
+end
+addHook("PreThinkFrame", whisperammothinker)
+
+local whisperstatethinker = function() --spike and hammer
+    local hammercost = CV_FindVar("whisperbattle_hammercost").value
+    local sawcost = CV_FindVar("whisperbattle_sawcost").value
+    for p in players.iterate do
         --pink saw
         if p.whispersaw and p.whispersaw.valid and not p.whispersaw.ammotrigger then
             p.whispersaw.ammotrigger = true
             if p.whisperammo >= sawcost and not p.actioncooldown then
-                p.whisperammo = $-sawcost
+                payammo(p, sawcost)
             else
                 P_RemoveMobj(p.whispersaw)
                 S_StopSoundByID(p.mo, mobjinfo[MT_WHISPER_SAW].seesound)
-                if not p.actioncooldown then S_StartSound(p.mo, sfx_noring, p) end
+                if not p.actioncooldown then S_StartSound(p.mo, sfx_noammo, p) end
                 p.whispersaw = nil
                 p.mo.momx = p.mo.whispermomx
                 p.mo.momy = p.mo.whispermomy
@@ -139,51 +228,23 @@ local whisperammothinker = function()
         if p.whisperhammer and p.whisperhammer.valid and not p.whisperhammer.ammotrigger then
             p.whisperhammer.ammotrigger = true
             if p.whisperammo >= hammercost and not p.actioncooldown then
-                p.whisperammo = $-hammercost
+                payammo(p, hammercost)
             else
                 P_RemoveMobj(p.whisperhammer)
                 S_StopSoundByID(p.mo, sfx_wscub3)
-                if not p.actioncooldown then S_StartSound(p.mo, sfx_noring, p) end
+                if not p.actioncooldown then S_StartSound(p.mo, sfx_noammo, p) end
                 p.whisperhammer = nil
                 p.mo.momx = p.mo.whispermomx
                 p.mo.momy = p.mo.whispermomy
                 p.mo.momz = p.mo.whispermomz
-                p.mo.angle = p.mo.whisperangle
-                p.mo.state = S_PLAY_SPRING
+                p.drawangle = p.mo.whisperangle
+                p.mo.state = p.mo.momz * P_MobjFlip(p.mo) > 0 and S_PLAY_SPRING or S_PLAY_FALL
             end
         end
-        --for future failed saw/hammer attempts
-        if p.mo and p.mo.skin == "whisper" then
-            p.mo.whispermomx = p.mo.momx
-            p.mo.whispermomy = p.mo.momy
-            p.mo.whispermomz = p.mo.momz
-            p.mo.whisperangle = p.mo.angle
-        end
-        --gun (orange rocket or cyan laser)
-        if not (p.cmd.buttons & BT_SPIN) and p.whispercharge and p.whispercharge >= WHISPERSTARTLAG then
-            --jammed
-            if p.actioncooldown then
-                p.whispercharge = 0
-                return --dont try to use ammo!!!!
-            end
-            --must have tried to fire
-            local preammo = p.whisperammo or 0
-            p.whisperammo = $ or 0
-            if p.whispercharge >= WHISPERCHARGE then
-                p.whisperammo = $-rocketcost
-            else
-                p.whisperammo = $-lasercost
-            end
-            --ammo went in the negatives, so not enough ammo. cancel the attempt
-            if p.whisperammo < 0 then
-                p.whisperammo = preammo
-                p.whispercharge = 0
-                S_StartSound(p.mo,sfx_noring,p)
-            end
-        end
+        --hi
     end
 end
-addHook("PreThinkFrame", whisperammothinker)
+addHook("PostThinkFrame", whisperstatethinker) --a lil hacky, but its so it doesnt look weird
 
 local whisperbattleloaded = false
 local loadwhisperbattle = function()
@@ -231,7 +292,7 @@ local loadwhisperbattle = function()
         end
     end
 end
-addHook("ThinkFrame", loadwhisperbattle)
+addHook("PostThinkFrame", loadwhisperbattle)
 
 local whisperbattlespawn = function(player)
     player.whisperammo = CV_FindVar("whisperbattle_maxammo").value
@@ -245,14 +306,18 @@ addHook("ShouldDamage", function(mo, mobj)
     end
     if mobj and mobj.type == MT_WHISPER_ROCKET and (mobj.flags2 & MF2_EXPLOSION)
     and mobj.target == mo and mo.player then
-        mo.player.guard = 0
-        mo.player.guardtics = 0
+        if CBW_Battle and CBW_Battle.VersionNumber >= 10 then
+            mo.player.guard = -1
+        else --support v9
+            mo.player.guard = 0
+            mo.player.guardtics = 0
+        end
         mo.player.airdodge = -1
         mo.player.intangible = false
         mo.player.scorepenalty = true
         return true
 	end
-end)
+end, MT_PLAYER)
 
 local whisperbruh = function(flag, mo)
     if not(mo.player and mo.skin and mo.skin == "whisper") then return end
@@ -264,5 +329,74 @@ local whisperbruh = function(flag, mo)
         mo.state = S_PLAY_SPRING
     end
 end
-addHook("TouchSpecial",whisperbruh,MT_REDFLAG)
-addHook("TouchSpecial",whisperbruh,MT_BLUEFLAG)
+addHook("TouchSpecial", whisperbruh, MT_REDFLAG)
+addHook("TouchSpecial", whisperbruh, MT_BLUEFLAG)
+
+local sawparry = function(target, inflictor, source, damage, damagetype)
+	--battlemod whisper check
+	if not (skins["whisper"] and CBW_Battle
+	and inflictor
+	and inflictor.valid
+	and inflictor.type == S_WHISPER_SAW
+	and inflictor.target)
+		return
+	end
+
+	--teammate check
+	if CBW_Battle.MyTeam(target.player, inflictor.target.player) and not CV_FindVar("friendlyfire").value then
+		return false
+	end
+
+	--parrying the mace triggers parry for its player
+	CBW_Battle.GuardFunc.Parry(target, inflictor.target, source, damage, damagetype)
+end
+addHook("ShouldDamage",sawparry,MT_PLAYER)
+
+local function safeFreeslot(...)
+    for _, item in ipairs({...}) do
+        if rawget(_G, item) == nil then
+            freeslot(item)
+        end
+    end
+end
+
+safeFreeslot("MT_WHISPER_LASER")
+
+addHook("MobjMoveBlocked", function(mobj, thing)
+    if mobj.bounced then
+        P_KillMobj(mobj)
+    else
+        mobj.bounced = true
+    end
+end, MT_WHISPER_LASER)
+
+local ammohud = function(v, player, cam)
+    if not (player.mo and player.mo.skin == "whisper") then
+        return
+    end
+    local c = hudinfo[HUD_LIVES].x
+    local r = hudinfo[HUD_LIVES].y + (player.whisperammomove or 0)
+    if cam.chase then
+        c = $ + 64
+        r = $ - 8
+    else
+        r = $ - 32
+    end
+    local a = v.cachePatch("WMETER")
+    local z = V_HUDTRANS | V_PERPLAYER | V_SNAPTOLEFT | V_SNAPTOBOTTOM
+    local y = v.getColormap(TC_DEFAULT, player.whisperguncolor)
+    v.draw(c, r, a, z, y)
+    local maxammo = CV_FindVar("whisperbattle_maxammo").value
+    for i=1, maxammo do
+        local cc = (c+26) + ((i-1)*5)
+        local rr = r + 4
+        local aa = v.cachePatch("WAMMO")
+        local zz = z
+        if S_SoundPlaying(player.mo,  sfx_noammo) then
+            zz = ($ &~ V_HUDTRANS) | V_HUDTRANSHALF
+        end
+        local yy = v.getColormap(TC_DEFAULT, (player.whisperammo >= i and player.whisperguncolor or SKINCOLOR_CARBON))
+        v.draw(cc, rr, aa, zz, yy)
+    end
+end
+hud.add(ammohud, "game")
