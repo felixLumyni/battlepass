@@ -160,6 +160,8 @@ local payammo = function(player, amount)
     player.whisperammocost = amount
     if player.whisperammo == 0 then
         S_StartSound(player.mo, sfx_lstsht, player)
+    elseif player.whisperammo < 0 then
+        player.whisperammocost = 0
     end
 end
 
@@ -247,7 +249,7 @@ local whisperstatethinker = function() --spike and hammer
             end
         end
         --umbrella
-        if player.mo.state == S_PLAY_GLIDE and p.whisperantifliptech then
+        if p.mo.state == S_PLAY_GLIDE and p.whisperantifliptech then
             p.whisperantifliptech = 0
             --cap horizontal momentum to player's max speed
 		    local count = 0
@@ -391,6 +393,19 @@ addHook("MobjMoveBlocked", function(mobj, thing)
     end
 end, MT_WHISPER_LASER)
 
+--utility func
+local V_TIMETRANS = function(time, speed)
+    speed = speed or 1
+    local level = (time / speed / 10) * 10
+    level = max(10, min(100, level))
+    
+    if level == 100 then
+        return 0
+    else
+        return _G["V_" .. (100 - level) .. "TRANS"]
+    end
+end
+
 local ammohud = function(v, player, cam)
     if not (player.mo and player.mo.skin == "whisper") then
         return
@@ -446,7 +461,7 @@ local ammohud = function(v, player, cam)
             rr = $*FRACUNIT
             local rrr = (r + 4) * FRACUNIT
             local aaa = FRACUNIT + ((FRACUNIT/2)*(5-player.whisperammomove))
-            local zzz = V_HUDTRANSHALF | V_PERPLAYER | V_SNAPTOLEFT | V_SNAPTOBOTTOM
+            local zzz = V_TIMETRANS(player.whisperammomove*20) | V_PERPLAYER | V_SNAPTOLEFT | V_SNAPTOBOTTOM
             v.drawScaled(ccc, rrr, aaa, aa, zzz, y)
         end
     end
