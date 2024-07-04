@@ -16,7 +16,6 @@
 	- Fixed hammer/spike sprites showing up for 1 frame when trying to use them without ammo
 ## Surge (NEW!):
 	- Can no longer have charge while in spectator
-	
 ## General:
 	- Removed all startup warnings and addon load order shenanigans (hopefully)
 	- Optimized patch-inserting scripts for characters that are not loaded
