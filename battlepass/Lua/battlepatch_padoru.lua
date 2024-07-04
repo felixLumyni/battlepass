@@ -94,7 +94,7 @@ addHook("MobjThinker", ghostchase, MT_GHOST)
 
 local padoruloaded = false
 local padoruload = function()
-	if CBW_Battle and skins["padoru"] and not padoruloaded then
+	if skins["padoru"] and CBW_Battle and not padoruloaded then
 		padoruloaded = true
 		CBW_Battle.SkinVars["padoru"] = {
 			weight = 50,

@@ -138,7 +138,7 @@ end
 
 local iclynloaded = false
 local iclynload = function()
-	if CBW_Battle and skins["iclyn"] and not iclynloaded then
+	if skins["iclyn"] and CBW_Battle and not iclynloaded then
 		iclynloaded = true
 		CBW_Battle.SkinVars["iclyn"] = {
 			weight = 80,

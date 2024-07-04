@@ -218,7 +218,7 @@ addHook("PlayerThink",skipbattle)
 
 local skiploaded = false
 local skipload = function()
-	if CBW_Battle and skins["skip"] and not skiploaded then
+	if skins["skip"] and CBW_Battle and not skiploaded then
 		skiploaded = true
 		CBW_Battle.SkinVars["skip"] = {
 			weight = 75,

@@ -83,7 +83,7 @@ addHook("PlayerThink",milnebattle)
 
 local milneloaded = false
 local milneload = function()
-	if CBW_Battle and skins["milne"] and not milneloaded then
+	if skins["milne"] and CBW_Battle and not milneloaded then
 		milneloaded = true
 		CBW_Battle.SkinVars["milne"] = {
 			weight = 115,
@@ -93,6 +93,16 @@ local milneload = function()
 	end
 end
 addHook("ThinkFrame", milneload)
+
+local function safeFreeslot(...)
+    for _, item in ipairs({...}) do
+        if rawget(_G, item) == nil then
+            freeslot(item)
+        end
+    end
+end
+
+safeFreeslot("MT_THROWNCRYSTAL")
 
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_shattr

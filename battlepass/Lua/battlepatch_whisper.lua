@@ -248,7 +248,7 @@ addHook("PostThinkFrame", whisperstatethinker) --a lil hacky, but its so it does
 
 local whisperbattleloaded = false
 local loadwhisperbattle = function()
-    if CBW_Battle and skins["whisper"] and not whisperbattleloaded then
+    if skins["whisper"] and CBW_Battle and not whisperbattleloaded then
         CBW_Battle.SkinVars["whisper"] = {
             flags = SKINVARS_GUARD,
             weight = 90,

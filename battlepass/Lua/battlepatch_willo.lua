@@ -50,7 +50,7 @@ end
 
 local willoloaded = false
 local willoload = function()
-	if CBW_Battle and skins["willo"] and not willoloaded then
+	if skins["willo"] and CBW_Battle and not willoloaded then
 		CBW_Battle.SkinVars["willo"] = {
 		weight = 95,
 		special = shadowtotem

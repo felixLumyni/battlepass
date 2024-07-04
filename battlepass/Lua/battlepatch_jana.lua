@@ -172,7 +172,7 @@ end
 
 local janaloaded = false
 local janaload = function()
-	if CBW_Battle and skins["jana"] and not janaloaded then
+	if skins["jana"] and CBW_Battle and not janaloaded then
 		janaloaded = true
 		CBW_Battle.SkinVars["jana"] = {
 			weight = 110,
@@ -189,6 +189,16 @@ local janaload = function()
 	end
 end
 addHook("ThinkFrame", janaload)
+
+local function safeFreeslot(...)
+    for _, item in ipairs({...}) do
+        if rawget(_G, item) == nil then
+            freeslot(item)
+        end
+    end
+end
+
+safeFreeslot("MT_JANA_SMALLSABERBEAM", "MT_JANA_SABERHITBOX", "MT_JANA_LARGESABERBEAM_HITBOX")
 
 addHook("MobjSpawn",function(mo)
 	mo.hit_sound = sfx_hit02

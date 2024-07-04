@@ -13,6 +13,9 @@
 	- Spike: Tumbles Whisper if parried
 	- Umbrella: Updated priority: 0/0 with 3def on top
 	- Fixed hammer/spike sprites showing up for 1 frame when trying to use them without ammo
+## General:
+	- Removed all startup warnings and addon load order shenanigans (hopefully)
+	- Optimized patch-inserting scripts for characters that are not loaded
 
 # v14 - Major Cacee revert and rework, Jana fixes & tweaks
 ## Cacee:
