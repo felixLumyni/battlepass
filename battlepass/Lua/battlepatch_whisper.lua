@@ -117,11 +117,13 @@ local reload = function(mo, doaction)
 	player.actionrings = maxammo
     if doaction == 1 then
         if player.rings >= player.actionrings and not player.actioncooldown then
+            player.whisperammolast = player.whisperammo
             player.whisperammo = maxammo
             CBW_Battle.PayRings(player, player.actionrings)
             CBW_Battle.ApplyCooldown(player, reloadtime)
             S_StartSound(mo, sfx_rlstrt, player)
         elseif not player.actioncooldown then --not enough rings
+            player.whisperammolast = player.whisperammo
             player.whisperammo = min(maxammo, $ + maxammo/2)
             CBW_Battle.PayRings(player, player.actionrings)
             CBW_Battle.ApplyCooldown(player, reloadtime)
@@ -129,6 +131,7 @@ local reload = function(mo, doaction)
         end
     end
     if (player.actioncooldown) then
+        player.whisperammomove2 = $ and min($+4,31) or 3
         player.normalspeed = skins[mo.skin].normalspeed/2
         mo.whisperspeedpenalty = true
         if not (player.reloadobj and player.reloadobj.valid) then
@@ -154,6 +157,7 @@ end
 local payammo = function(player, amount)
     player.whisperammo = $ - amount
     player.whisperammomove = 5
+    player.whisperammocost = amount
     if player.whisperammo == 0 then
         S_StartSound(player.mo, sfx_lstsht, player)
     end
@@ -168,9 +172,8 @@ local whisperammothinker = function() --laser and rocket
         if p.whisperammo == nil then
             p.whisperammo = CV_FindVar("whisperbattle_maxammo").value
         end
-        if p.whisperammomove then
-            p.whisperammomove = max($-1, 0)
-        end
+        p.whisperammomove = $ and max($-1, 0) or 0
+        p.whisperammomove2 = $ and max($-2, 0) or 0
         --for future failed saw/hammer attempts
         if p.mo and p.mo.skin == "whisper" then
             p.mo.whispermomx = p.mo.momx
@@ -296,6 +299,7 @@ addHook("PostThinkFrame", loadwhisperbattle)
 
 local whisperbattlespawn = function(player)
     player.whisperammo = CV_FindVar("whisperbattle_maxammo").value
+    player.whisperammolast = player.whisperammo
 end
 addHook("PlayerSpawn", whisperbattlespawn)
 
@@ -374,8 +378,10 @@ local ammohud = function(v, player, cam)
     if not (player.mo and player.mo.skin == "whisper") then
         return
     end
+
+    --meter
     local c = hudinfo[HUD_LIVES].x
-    local r = hudinfo[HUD_LIVES].y + (player.whisperammomove or 0)
+    local r = hudinfo[HUD_LIVES].y + (player.whisperammomove or 0) + (player.whisperammomove2 or 0)
     if cam.chase then
         c = $ + 64
         r = $ - 8
@@ -384,19 +390,50 @@ local ammohud = function(v, player, cam)
     end
     local a = v.cachePatch("WMETER")
     local z = V_HUDTRANS | V_PERPLAYER | V_SNAPTOLEFT | V_SNAPTOBOTTOM
+    if player.actioncooldown then
+        z = ($ &~ V_HUDTRANS) | V_HUDTRANSHALF
+    end
     local y = v.getColormap(TC_DEFAULT, player.whisperguncolor)
     v.draw(c, r, a, z, y)
+
+    --bars
     local maxammo = CV_FindVar("whisperbattle_maxammo").value
-    for i=1, maxammo do
+    local FIRED = player.whisperammomove and (player.whisperammo or S_SoundPlaying(player.mo, sfx_lstsht))
+    local cost = FIRED and player.whisperammocost or 0
+    for i=1, maxammo+cost do
         local cc = (c+26) + ((i-1)*5)
         local rr = r + 4
+        if player.whisperammo < maxammo/2 and player.whisperammomove and i % 2 == 0 then
+            rr = $-1
+        end
+        if player.whisperammo < maxammo/4 and player.whisperammomove and i % 2 == 1 then
+            rr = $+1
+        end
         local aa = v.cachePatch("WAMMO")
         local zz = z
         if S_SoundPlaying(player.mo,  sfx_noammo) then
             zz = ($ &~ V_HUDTRANS) | V_HUDTRANSHALF
         end
-        local yy = v.getColormap(TC_DEFAULT, (player.whisperammo >= i and player.whisperguncolor or SKINCOLOR_CARBON))
-        v.draw(cc, rr, aa, zz, yy)
+        local validammo = player.whisperammo
+        if player.actioncooldown then
+            validammo = player.whisperammolast
+        end
+        local yy = v.getColormap(TC_DEFAULT, (validammo >= i and player.whisperguncolor or SKINCOLOR_CARBON))
+        if i <= maxammo then
+            v.draw(cc, rr, aa, zz, yy)
+        end
+        --visual effect of ammo expanding and fading away
+        --unused: local invishud = (v.localTransFlag() >> V_ALPHASHIFT) == 10
+        if FIRED and i > maxammo then
+            local ccc = ((c+26) + ((player.whisperammo-1)*5) + ((i-maxammo)*10)) * FRACUNIT --man
+            rr = $*FRACUNIT
+            local rrr = (r + 4) * FRACUNIT
+            local aaa = FRACUNIT + ((FRACUNIT/2)*(5-player.whisperammomove))
+            local zzz = V_HUDTRANSHALF | V_PERPLAYER | V_SNAPTOLEFT | V_SNAPTOBOTTOM
+            v.drawScaled(ccc, rrr, aaa, aa, zzz, y)
+        end
     end
+
+    --hi
 end
 hud.add(ammohud, "game")
