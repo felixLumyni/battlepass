@@ -14,6 +14,9 @@
 	- Umbrella: Updated priority: 0/0 with 3def on top
 	- Umbrella: If this move cancelled the hammer attack, Whisper will snap into normal speed
 	- Fixed hammer/spike sprites showing up for 1 frame when trying to use them without ammo
+## Surge (NEW!):
+	- Can no longer have charge while in spectator
+	
 ## General:
 	- Removed all startup warnings and addon load order shenanigans (hopefully)
 	- Optimized patch-inserting scripts for characters that are not loaded
@@ -42,6 +45,7 @@
 	- Fixed Jana's walljump exhaust system only working reliably in singleplayer
 
 # v13 - Fastest fix in the west
+## Ray (NEW!):
 	- Fixed being able to get a huge burst of speed by collecting the flag during dive startups
 
 # v12 - Cacee fixes
