@@ -174,6 +174,7 @@ local whisperammothinker = function() --laser and rocket
         end
         p.whisperammomove = $ and max($-1, 0) or 0
         p.whisperammomove2 = $ and max($-2, 0) or 0
+        p.whisperantifliptech = $ and max($-1, 0) or 0
         --for future failed saw/hammer attempts
         if p.mo and p.mo.skin == "whisper" then
             p.mo.whispermomx = p.mo.momx
@@ -232,6 +233,7 @@ local whisperstatethinker = function() --spike and hammer
             p.whisperhammer.ammotrigger = true
             if p.whisperammo >= hammercost and not p.actioncooldown then
                 payammo(p, hammercost)
+                p.whisperantifliptech = TICRATE/2
             else
                 P_RemoveMobj(p.whisperhammer)
                 S_StopSoundByID(p.mo, sfx_wscub3)
@@ -243,6 +245,21 @@ local whisperstatethinker = function() --spike and hammer
                 p.drawangle = p.mo.whisperangle
                 p.mo.state = p.mo.momz * P_MobjFlip(p.mo) > 0 and S_PLAY_SPRING or S_PLAY_FALL
             end
+        end
+        --umbrella
+        if player.mo.state == S_PLAY_GLIDE and p.whisperantifliptech then
+            p.whisperantifliptech = 0
+            --cap horizontal momentum to player's max speed
+		    local count = 0
+		    for i=1, 100 do
+		    	if FixedHypot(p.mo.momx, p.mo.momy) <= p.normalspeed then break end
+		    	local speedangle = R_PointToAngle2(0, 0, p.mo.momx, p.mo.momy) 
+		    	P_Thrust(p.mo, speedangle, -p.mo.scale)
+		    	count = i
+		    end
+		    --cap vertical momentum to player's jump height
+		    local jumpheight = FixedMul(p.jumpfactor, p.mo.scale)
+		    p.mo.momz = (P_MobjFlip(p.mo) > 0) and min($,jumpheight) or max($,-jumpheight)
         end
         --hi
     end
