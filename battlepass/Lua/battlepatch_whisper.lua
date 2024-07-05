@@ -393,11 +393,14 @@ addHook("MobjMoveBlocked", function(mobj, thing)
     end
 end, MT_WHISPER_LASER)
 
---utility func
-local V_TIMETRANS = function(time, speed)
+--utility funcs
+local V_TIMETRANS = function(time, speed, minimum, cap)
     speed = speed or 1
     local level = (time / speed / 10) * 10
     level = max(10, min(100, level))
+
+    if minimum then level = max($, minimum / 10 * 10) end
+	if cap then level = min($, cap / 10 * 10) end
     
     if level == 100 then
         return 0
@@ -405,18 +408,45 @@ local V_TIMETRANS = function(time, speed)
         return _G["V_" .. (100 - level) .. "TRANS"]
     end
 end
+local function getWispon(whisperguncolor)
+    whisperguncolor = ($ and skincolors[$]) and skincolors[$].name or ""
 
+    local colorMap = {
+        ["Laser"] = {color = SKINCOLOR_SKY, patch = "WLASER"},
+        ["Rocket"] = {color = SKINCOLOR_ORANGE, patch = "WROCKT"},
+        ["Cube"] = {color = SKINCOLOR_MIDNIGHT, patch = "WCUBE", ammocolor = SKINCOLOR_BLUE},
+        ["Spike"] = {color = SKINCOLOR_LAVENDER, patch = "WSPIKE", ammocolor = SKINCOLOR_MAGENTA},
+        ["Hover"] = {color = SKINCOLOR_GREEN, patch = "WHOVER"}
+    }
+
+    for key, value in pairs(colorMap) do
+        if string.find(whisperguncolor, key) then
+            return value
+        end
+    end
+
+    return {color = SKINCOLOR_GREY, patch = nil}
+end
+
+local hudenabled = CV_RegisterVar{
+	name = "whisperbattle_hud",
+	flags = CV_SHOWMODIF,
+	PossibleValue = CV_OnOff,
+	defaultvalue = 1,
+}
+
+--craziest hook u will ever see
 local ammohud = function(v, player, cam)
-    if not (player.mo and player.mo.skin == "whisper") then
+    if not (hudenabled.value and player.mo and player.mo.skin == "whisper") then
         return
     end
 
     --meter
     local c = hudinfo[HUD_LIVES].x
-    local r = hudinfo[HUD_LIVES].y + (player.whisperammomove or 0) + (player.whisperammomove2 or 0)
+    local r = hudinfo[HUD_LIVES].y + (player.whisperammomove or 0)
     if cam.chase then
         c = $ + 64
-        r = $ - 8
+        r = $ + (player.whisperammomove2 or 0) - 8
     else
         r = $ - 32
     end
@@ -450,22 +480,44 @@ local ammohud = function(v, player, cam)
         if player.actioncooldown then
             validammo = player.whisperammolast
         end
-        local yy = v.getColormap(TC_DEFAULT, (validammo >= i and player.whisperguncolor or SKINCOLOR_CARBON))
+        local col = getWispon(player.whisperguncolor).ammocolor or getWispon(player.whisperguncolor).color
+        local yy = v.getColormap(TC_DEFAULT, (validammo >= i and col or SKINCOLOR_CARBON))
         if i <= maxammo then
             v.draw(cc, rr, aa, zz, yy)
         end
         --visual effect of ammo expanding and fading away
-        --unused: local invishud = (v.localTransFlag() >> V_ALPHASHIFT) == 10
         if FIRED and i > maxammo then
             local ccc = ((c+26) + ((player.whisperammo-1)*5) + ((i-maxammo)*10)) * FRACUNIT --man
             rr = $*FRACUNIT
             local rrr = (r + 4) * FRACUNIT
             local aaa = FRACUNIT + ((FRACUNIT/2)*(5-player.whisperammomove))
             local zzz = V_TIMETRANS(player.whisperammomove*20) | V_PERPLAYER | V_SNAPTOLEFT | V_SNAPTOBOTTOM
+            y = v.getColormap(TC_DEFAULT, col)
             v.drawScaled(ccc, rrr, aaa, aa, zzz, y)
         end
     end
 
-    --hi
+    --wispon bg
+    c = $+5
+    r = $+3
+    a = v.cachePatch("WICOBG")
+    y = v.getColormap(TC_RAINBOW, getWispon(player.whisperguncolor).color)
+    v.draw(c, r, a, z, y)
+    
+    --wispon icon
+    a = getWispon(player.whisperguncolor).patch
+    if a then
+        local aaaa = FRACUNIT
+        c = $*aaaa
+        r = ($*aaaa) + sin(leveltime*ANG1)
+        a = v.cachePatch($)
+        y = nil
+        v.drawScaled(c, r, aaaa, a, z, y)
+        --wispon flash
+        y = v.getColormap(TC_ALLWHITE, SKINCOLOR_WHITE)
+        local V_TRANSPULSE = V_TIMETRANS(abs(sin(leveltime*ANG1)*100/FRACUNIT), nil, nil, 90)
+        z = V_TRANSPULSE | V_PERPLAYER | V_SNAPTOLEFT | V_SNAPTOBOTTOM
+        v.drawScaled(c, r, aaaa, a, z, y)
+    end
 end
 hud.add(ammohud, "game")
