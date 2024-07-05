@@ -62,14 +62,15 @@ CV_RegisterVar({
 
 -- functions taken from whisper's battle lua
 local WhisperFunction = function(player)
+    local meleeing = player.mo.state == S_PLAY_MELEE or player.mo.state == S_PLAY_MELEE_FINISH or player.mo.state == S_PLAY_MELEE_LANDING
     if player.powers[pw_super] or player.powers[pw_invulnerability] then
         CBW_Battle.SetPriority(player,0,99,nil,0,0,"protected")
-        if player.mo.state == S_PLAY_MELEE then
+        if meleeing then
             CBW_Battle.SetPriority(player,0,99,"amy_melee",2,99,"blue cube hammer")
         end
     elseif player.mo.state == S_PLAY_GLIDE then
         CBW_Battle.SetPriority(player,0,0,"tails_fly",0,3,"umbrella")
-    elseif player.mo.state == S_PLAY_MELEE then 
+    elseif meleeing then 
         CBW_Battle.SetPriority(player,0,0,"amy_melee",2,0,"blue cube hammer")
     else
         CBW_Battle.SetPriority(player,0,0,nil,0,0,"defenseless")
@@ -366,7 +367,8 @@ local whisperbruh = function(flag, mo)
     if not(mo.player and mo.skin and mo.skin == "whisper") then return end
     if flag.type == MT_REDFLAG and mo.player.ctfteam == 1 then return end
     if flag.type == MT_BLUEFLAG and mo.player.ctfteam == 2 then return end
-    if mo.state == S_PLAY_GLIDE or mo.state == S_PLAY_MELEE then
+    local meleeing = mo.state == S_PLAY_MELEE or mo.state == S_PLAY_MELEE_FINISH or mo.state == S_PLAY_MELEE_LANDING
+    if mo.state == S_PLAY_GLIDE or meleeing then
         mo.momx = $/2
         mo.momy = $/2
         mo.state = S_PLAY_SPRING
