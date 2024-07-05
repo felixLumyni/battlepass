@@ -144,7 +144,7 @@ local reload = function(mo, doaction)
         end
         S_StartSound(mo, sfx_rlfnsh, player)
         player.normalspeed = skins[mo.skin].normalspeed
-        mo.whisperreloading = true
+        mo.whisperreloading = false
         mo.whisperspeedpenalty = false
     end
 end
@@ -491,7 +491,7 @@ local ammohud = function(v, player, cam)
             zz = ($ &~ V_HUDTRANS) | V_HUDTRANSHALF
         end
         local validammo = player.whisperammo
-        if player.actioncooldown then
+        if player.actioncooldown and player.mo.whisperreloading then
             validammo = player.whisperammolast
         end
         local col = getWispon(player.whisperguncolor).ammocolor or getWispon(player.whisperguncolor).color
