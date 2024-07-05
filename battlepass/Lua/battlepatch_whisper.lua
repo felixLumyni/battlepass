@@ -308,13 +308,14 @@ end
 addHook("PlayerSpawn", whisperbattlespawn)
 
 --blast radius tumbles instead of dealing damage
-addHook("ShouldDamage", function(mo, mobj)
+local blasttumble = function(mo, mobj)
     if not (skins["whisper"] and CBW_Battle and mo.player and mobj) then
         return
     end
     if mobj.type == MT_WHISPER_ROCKET
     and (mobj.flags2 & MF2_EXPLOSION)
     and (mobj.target == mo or not CBW_Battle.MyTeam(mo, mobj.target))
+    and not (mobj.ggshakemyhand and mobj.ggshakemyhand.valid and mobj.ggshakemyhand == mo)
     then
         local angle = R_PointToAngle2(mo.x,mo.y,mobj.x,mobj.y)
         CBW_Battle.DoPlayerTumble(mo.player, TICRATE*2, angle+ANGLE_180, mobj.scale*20, true)
@@ -332,7 +333,34 @@ addHook("ShouldDamage", function(mo, mobj)
         end
         return false --dont damage
 	end
-end, MT_PLAYER)
+end
+addHook("ShouldDamage", blasttumble, MT_PLAYER) --TODO: replace this with MT_WHISPER_ROCKET for optimization
+
+local function safeFreeslot(...)
+    for _, item in ipairs({...}) do
+        if rawget(_G, item) == nil then
+            freeslot(item)
+        end
+    end
+end
+
+safeFreeslot("MT_WHISPER_ROCKET")
+
+--to make sure contact damage is still possible
+local rocketcontactdamage = function(mobj, mo)
+	if mobj
+    and mo
+    and not (
+        (mobj.flags2 & MF2_EXPLOSION)
+        or CBW_Battle.MyTeam(mo, mobj.target)
+        or mobj.target == mo
+    )
+    then
+        mobj.ggshakemyhand = mo
+		return
+	end
+end
+addHook("MobjMoveCollide", rocketcontactdamage, MT_WHISPER_ROCKET)
 
 local whisperbruh = function(flag, mo)
     if not(mo.player and mo.skin and mo.skin == "whisper") then return end
@@ -366,14 +394,6 @@ local sawparry = function(target, inflictor, source, damage, damagetype)
 	CBW_Battle.GuardFunc.Parry(target, inflictor.target, source, damage, damagetype)
 end
 addHook("ShouldDamage",sawparry,MT_PLAYER)
-
-local function safeFreeslot(...)
-    for _, item in ipairs({...}) do
-        if rawget(_G, item) == nil then
-            freeslot(item)
-        end
-    end
-end
 
 safeFreeslot("MT_WHISPER_LASER")
 
