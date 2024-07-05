@@ -115,22 +115,15 @@ local reload = function(mo, doaction)
     local color = S_SoundPlaying(mo, sfx_noammo) and "\143" or ""
     player.actiontext = color+"Reload ("..player.whisperammo.."/"..maxammo..")"
 	player.actionrings = maxammo
-    if doaction == 1 then
-        if player.rings >= player.actionrings and not player.actioncooldown then
-            player.whisperammolast = player.whisperammo
-            player.whisperammo = maxammo
-            CBW_Battle.PayRings(player, player.actionrings)
-            CBW_Battle.ApplyCooldown(player, reloadtime)
-            S_StartSound(mo, sfx_rlstrt, player)
-        elseif not player.actioncooldown then --not enough rings
-            player.whisperammolast = player.whisperammo
-            player.whisperammo = min(maxammo, $ + maxammo/2)
-            CBW_Battle.PayRings(player, player.actionrings)
-            CBW_Battle.ApplyCooldown(player, reloadtime)
-            S_StartSound(mo, sfx_rlstrt, player)
-        end
+    if doaction == 1 and not player.actioncooldown then
+        player.whisperammolast = player.whisperammo
+        player.whisperammo = maxammo
+        mo.whisperreloading = true
+        CBW_Battle.PayRings(player, player.actionrings)
+        CBW_Battle.ApplyCooldown(player, reloadtime)
+        S_StartSound(mo, sfx_rlstrt, player)
     end
-    if (player.actioncooldown) then
+    if (player.actioncooldown and mo.whisperreloading) then
         player.whisperammomove2 = $ and min($+4,31) or 3
         player.normalspeed = skins[mo.skin].normalspeed/2
         mo.whisperspeedpenalty = true
@@ -150,6 +143,7 @@ local reload = function(mo, doaction)
         end
         S_StartSound(mo, sfx_rlfnsh, player)
         player.normalspeed = skins[mo.skin].normalspeed
+        mo.whisperreloading = true
         mo.whisperspeedpenalty = false
     end
 end
@@ -287,15 +281,6 @@ local loadwhisperbattle = function()
         mobjinfo[MT_WHISPER_SAW].name = "pink saw"
     end
     for p in players.iterate do
-        if p.scorepenalty then
-            --player blasted themselves
-            local penalty = (p.playerstate == PST_LIVE) and 50 or 100
-            p.score = max(0,$-penalty)
-            if p.preservescore then p.preservescore = max(0,$-penalty) end
-            if p.ctfteam == 1 then redscore = max(0,$-penalty) end
-            if p.ctfteam == 2 then bluescore = max(0,$-penalty) end
-            p.scorepenalty = false
-        end
         local mincubetime = TICRATE/2
         local maxcubetime = 3*TICRATE
         if p.mo and p.mo.whispercubed then
@@ -322,23 +307,30 @@ local whisperbattlespawn = function(player)
 end
 addHook("PlayerSpawn", whisperbattlespawn)
 
---whispers cant parry their own blast radius lol
+--blast radius tumbles instead of dealing damage
 addHook("ShouldDamage", function(mo, mobj)
-    if not (skins["whisper"]) then
+    if not (skins["whisper"] and CBW_Battle and mo.player and mobj) then
         return
     end
-    if mobj and mobj.type == MT_WHISPER_ROCKET and (mobj.flags2 & MF2_EXPLOSION)
-    and mobj.target == mo and mo.player then
-        if CBW_Battle and CBW_Battle.VersionNumber >= 10 then
-            mo.player.guard = -1
-        else --support v9
-            mo.player.guard = 0
-            mo.player.guardtics = 0
+    if mobj.type == MT_WHISPER_ROCKET
+    and (mobj.flags2 & MF2_EXPLOSION)
+    and (mobj.target == mo or not CBW_Battle.MyTeam(mo, mobj.target))
+    then
+        local angle = R_PointToAngle2(mo.x,mo.y,mobj.x,mobj.y)
+        CBW_Battle.DoPlayerTumble(mo.player, TICRATE*2, angle+ANGLE_180, mobj.scale*20, true)
+        CBW_Battle.ZLaunch(mo, 16*FRACUNIT)
+        --cant parry ur own missile lol
+        if mobj.target == mo then
+            if CBW_Battle and CBW_Battle.VersionNumber >= 10 then
+                mo.player.guard = -1
+            else --support v9
+                mo.player.guard = 0
+                mo.player.guardtics = 0
+            end
+            mo.player.airdodge = -1
+            mo.player.intangible = false
         end
-        mo.player.airdodge = -1
-        mo.player.intangible = false
-        mo.player.scorepenalty = true
-        return true
+        return false --dont damage
 	end
 end, MT_PLAYER)
 

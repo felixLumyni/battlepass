@@ -2,18 +2,20 @@
 ## Whisper:
 	- Whisper is 0/0 no matter what, even when in spin state or when using shield specials
 		- Exceptions: Invulnerability (only defense), Hammer (atk sweetspot), Umbrella (def sweetspot)
+	- Whisper always reloads to max ammo
 	- Added ammo HUD
 	- Added local sounds for: Firing last shot, trying to fire without ammo, reload start, reload end
 	- Whisper's top speed is 50% while reloading
 	- Added an idicator for when Whisper is reloading - get her!! (placeholder sprite)
 	- The action HUD flashes when attempting to use a weapon without enough ammo
-	- Laser: Can only bounce once
-	- Rocket: Unchanged, for now...
+	- Laser: Can only bounce on walls once
+	- Rocket: Blast radius launches in tumble instead of damaging (still parriable, also still has contact dmg)
 	- Hammer: Updated priority: 0/0 with 2atk on front
 	- Spike: Tumbles Whisper if parried
 	- Umbrella: Updated priority: 0/0 with 3def on top
 	- Umbrella: If this move cancelled the hammer attack, Whisper will snap into normal speed
 	- Fixed hammer/spike sprites showing up for 1 frame when trying to use them without ammo
+	- Fixed Whisper automatically reloading after a stunbreak
 ## Surge (NEW!):
 	- Can no longer have charge while in spectator
 ## General:
