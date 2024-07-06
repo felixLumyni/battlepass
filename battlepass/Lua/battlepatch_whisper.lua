@@ -292,6 +292,9 @@ local loadwhisperbattle = function()
                 WhisperUnCube(p.mo)
                 P_DamageMobj(p.mo, nil)
             end
+            if p.spectator then
+                WhisperUnCube(p.mo)
+            end
             if p.whispercubetime < mincubetime then
                 p.pflags = $|PF_JUMPDOWN
             end
@@ -310,7 +313,7 @@ addHook("PlayerSpawn", whisperbattlespawn)
 
 --blast radius tumbles instead of dealing damage
 local blasttumble = function(mo, mobj)
-    if not (skins["whisper"] and CBW_Battle and mo.player and mobj) then
+    if not (skins["whisper"] and CBW_Battle and mo and mo.valid and mo.player and mobj and mobj.valid) then
         return
     end
     if mobj.type == MT_WHISPER_ROCKET
@@ -320,7 +323,8 @@ local blasttumble = function(mo, mobj)
     then
         local angle = R_PointToAngle2(mo.x,mo.y,mobj.x,mobj.y)
         CBW_Battle.DoPlayerTumble(mo.player, TICRATE*2, angle+ANGLE_180, mobj.scale*20, true)
-        CBW_Battle.ZLaunch(mo, 16*FRACUNIT)
+        local zspd = (mobj.target == mo and mo.player.gotflagdebuff) and 8*FRACUNIT or 16*FRACUNIT
+        CBW_Battle.ZLaunch(mo, zspd)
         --cant parry ur own missile lol
         if mobj.target == mo then
             if CBW_Battle and CBW_Battle.VersionNumber >= 10 then
