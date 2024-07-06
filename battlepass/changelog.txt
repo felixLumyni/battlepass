@@ -1,12 +1,9 @@
-# v15c
-## Whisper:
-	- Spectators can't get cubed
-	- While in flagdebuff, the vertical launch from her own rocket blast is reduced by 50% (16FRAC -> 8FRAC)
-
 # v15b
 ## Whisper:
 	- Fixed ammo HUD going offscreen after a stunbreak
 	- Fixed hammer's atk only being applied on startup
+	- Spectators can't get cubed
+	- While in flagdebuff, the vertical launch from her own rocket blast is reduced by 50% (16FRAC -> 8FRAC)
 
 # v15 - I heard some whispering...
 ## Whisper:
