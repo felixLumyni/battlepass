@@ -1,3 +1,7 @@
+# v17
+- Added "discord" command
+- Added "luminous" skincolor
+
 # v16 - Time for another separate pk3...
 ## Whisper:
 	- Removed from the pk3, all future changes are now in whisperpass
