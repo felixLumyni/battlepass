@@ -1,3 +1,6 @@
+# v18
+- Added ringbugfix.lua (Prevents teammates from sharing rings via projectiles with the MF_MISSILE flag)
+
 # v17
 - Added "discord" command
 - Added "luminous" skincolor
