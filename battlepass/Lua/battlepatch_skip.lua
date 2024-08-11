@@ -1,3 +1,25 @@
+//--------------we need to have our own copy of skipcraftlist so we can prevent skip from selecting custom boxs
+//List of monitors
+local b_skipcraftlist = {
+	[0] = MT_PITY_BOX,
+	MT_EGGMAN_BOX,
+	MT_SNEAKERS_BOX,
+	MT_FORCE_BOX,
+	MT_ATTRACT_BOX,
+	MT_BUBBLEWRAP_BOX,
+	MT_MYSTERY_BOX,
+	MT_ARMAGEDDON_BOX,
+	MT_ELEMENTAL_BOX,
+	MT_INVULN_BOX,
+	MT_FLAMEAURA_BOX,
+	MT_WHIRLWIND_BOX,
+	MT_THUNDERCOIN_BOX,
+	MT_SKIPSUPERBOX,
+}
+local skiptotalcraft = #b_skipcraftlist
+
+//---------------------------------------------------------------------//
+
 local spawnscrap = function(target)
 	local scrap = P_SpawnMobjFromMobj(target,0,0,0,MT_SKIPMETALSCRAP)
 	if scrap and scrap.valid then
@@ -142,6 +164,24 @@ local skipbattle = function(player)
 	then
 		player.wasntskip = true
 		return
+	end
+	
+	if player.skipselection != nil then // no selecting custom monitors 
+		if player.righttapping and player.skipselection > skiptotalcraft then
+			player.skipselection = 0
+		elseif player.lefttapping and player.skipselection > skiptotalcraft then
+			player.skipselection = 13 // wrap around to super transform box
+		end
+	end
+	
+	// taunts only trigger if custom button 1 is held
+	if P_IsObjectOnGround(player.mo) and player.skiptosstapping then
+		if (player.cmd.buttons & BT_CUSTOM1) then else
+		player.skipsmug = false
+		P_RestoreMusic(player)
+		player.mo.skipcrouching = true
+		player.mo.state = S_PLAY_SKIPCROUCH
+		end
 	end
 	
 	--no cheese
