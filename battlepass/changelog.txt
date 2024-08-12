@@ -1,3 +1,13 @@
+# v19 - Skip and Jana edits by JAB
+## Skip:
+	- Taunts now only trigger if custom button 1 is held
+	- Can no longer select custom monitors for crafting
+## Jana:
+    - Taunts now only trigger if custom button 1 is held
+    - Dash tumbles if it collides with a player with 0 attack (can be parried)
+    - The combo slashes can no longer block weak projectiles
+    - Jana can no longer guard/air-dodge while slashing
+
 # v18
 - Added ringbugfix.lua (Prevents teammates from sharing rings via projectiles with the MF_MISSILE flag)
 
