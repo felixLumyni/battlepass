@@ -1,7 +1,10 @@
-# v19 - Skip and Jana edits by JAB
+# v19 - Skip and Jana edits (thank JAB for the assist!)
 ## Skip:
 	- Taunts now only trigger if custom button 1 is held
 	- Can no longer select custom monitors for crafting
+	- Dive is cancelled by air dodge
+	- Received the SKINVAR_NOSPINSHIELD flag
+	- Shield is rendered after getting flagdebuff removed
 ## Jana:
     - Taunts now only trigger if custom button 1 is held
     - Dash tumbles if it collides with a player with 0 attack (can be parried)
