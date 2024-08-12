@@ -188,15 +188,20 @@ local skipbattle = function(player)
 			player.skipselection = 13 // wrap around to super transform box
 		end
 	end
-	
+
 	// taunts only trigger if custom button 1 is held
-	if P_IsObjectOnGround(player.mo) and player.skiptosstapping then
-		if (player.cmd.buttons & BT_CUSTOM1) then else
+	if P_IsObjectOnGround(player.mo)
+	and player.skiptosstapping
+	and not (player.cmd.buttons & BT_CUSTOM1)
+	then
 		player.skipsmug = false
 		P_RestoreMusic(player)
 		player.mo.skipcrouching = true
 		player.mo.state = S_PLAY_SKIPCROUCH
-		end
+	end
+	if not (player.cmd.buttons & BT_CUSTOM1) then --for addon load order
+		player.skiptosstapready = false
+		player.skiptosstapping = false
 	end
 	
 	--no cheese
@@ -219,9 +224,7 @@ local skipbattle = function(player)
 		local g = P_SpawnGhostMobj(player.mo)
 		g.tics = 2
 		g.blendmode = 0
-		g.momx = player.mo.momx
-		g.momy = player.mo.momy
-		g.momz = player.mo.momz
+		P_MoveOrigin(g, player.mo.x, player.mo.y, player.mo.z)
 		g.shadowscale = player.mo.scale
 		g.shieldscale = player.mo.scale --doesn't work T_T
 		player.mo.flags2 = $|MF2_DONTDRAW|MF2_SHIELD
@@ -265,6 +268,7 @@ local skipbattle = function(player)
 		player.skipscrap = 0
 		player.skipscrapreset = false
 	end
+
 	--lol lmao
 	player.armachargeup = 0
 	S_StopSoundByID(player.mo,sfx_s3kc4s)
@@ -322,22 +326,40 @@ local skipbattle4 = function()
 			return
 		end
 		-- prevent shield dive abils with flag
-		if player.gotflagdebuff and player.powers[pw_shield] then
+		if player.gotflagdebuff
+		and player.powers[pw_shield]
+		and not player.mo.battlepatch_storeshield
+		then
 			player.mo.battlepatch_storeshield = player.powers[pw_shield]
 			player.powers[pw_shield] = SH_PITY
+			player.bp_hadflagdebuff = true
+		end
+		if player.bp_hadflagdebuff then
+			if not player.gotflagdebuff then
+				player.bp_hadflagdebuff = false
+				P_SpawnShieldOrb(player)
+			end
+			--P_SpawnShieldOrb(player) --*sigh*, srb2 why are u like this
 		end
 	end
 end
 addHook("PreThinkFrame", skipbattle4)
 
+local UGH = function(mo)
+	if mo.tracer and mo.tracer.valid and mo.tracer.skin == "skip" then
+		mo.scale = mo.destscale
+	end
+end
+addHook("MobjSpawn", UGH, MT_PITY_ORB)
+
 local skipbattle5 = function()
 	for player in players.iterate do
+		-- gotta love bandaid fixes, right guys?? haha...
 		if player.mo and player.mo.battlepatch_storeshield then
-			if not P_PlayerInPain(player) then -- gotta love bandaid fixes, right guys?? haha...
+			if not P_PlayerInPain(player) then
 				player.powers[pw_shield] = player.mo.battlepatch_storeshield
 			end
 			player.mo.battlepatch_storeshield = nil
-			--P_SpawnShieldOrb(player) -- LOOKS UGLY
 		end
 	end
 end
