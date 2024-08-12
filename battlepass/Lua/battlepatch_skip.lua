@@ -272,6 +272,13 @@ local skipbattle = function(player)
 	--lol lmao
 	player.armachargeup = 0
 	S_StopSoundByID(player.mo,sfx_s3kc4s)
+
+	--airdodge fix
+	if player.intangible and player.mo.skipdove then
+		player.mo.state = S_PLAY_FALL
+		player.mo.skipdove = false
+		player.pflags = $ &~ PF_DRILLING
+	end
 end
 addHook("PlayerThink",skipbattle)
 
@@ -280,6 +287,7 @@ local skipload = function()
 	if skins["skip"] and CBW_Battle and not skiploaded then
 		skiploaded = true
 		CBW_Battle.SkinVars["skip"] = {
+			flags = SKINVARS_GUARD|SKINVARS_NOSPINSHIELD,
 			weight = 75,
 			special = exchange,
 			func_priority_ext = skippriority,
@@ -344,13 +352,6 @@ local skipbattle4 = function()
 	end
 end
 addHook("PreThinkFrame", skipbattle4)
-
-local UGH = function(mo)
-	if mo.tracer and mo.tracer.valid and mo.tracer.skin == "skip" then
-		mo.scale = mo.destscale
-	end
-end
-addHook("MobjSpawn", UGH, MT_PITY_ORB)
 
 local skipbattle5 = function()
 	for player in players.iterate do
