@@ -160,8 +160,13 @@ local BRUH = function(target, inflictor, source, damage, damagetype)
 end
 
 local skippriority = function(player)
-	if player.mo and player.mo.state == S_PLAY_SKIPDIVE then
-		CBW_Battle.SetPriority(player,1,0,"amy_melee",1,1,"pounce attack")
+	local mo = player.mo
+	if not (mo and mo.valid) then
+		return
+	elseif mo.state == S_PLAY_SKIPDIVE then
+		CBW_Battle.SetPriority(player,0,0,"amy_melee",1,1,"pounce attack")
+	elseif mo.state == S_PLAY_SKIPSLIDE then
+		CBW_Battle.SetPriority(player,0,0,"amy_melee",1,1,"slide attack")
 	end
 end
 
