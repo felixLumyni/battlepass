@@ -1,3 +1,13 @@
+local function safeFreeslot(...) --to prevent addon load order warnings
+    for _, item in ipairs({...}) do
+        if rawget(_G, item) == nil then
+            freeslot(item)
+        end
+    end
+end
+
+safeFreeslot("MT_SKIPSUPERBOX")
+
 //--------------we need to have our own copy of skipcraftlist so we can prevent skip from selecting custom boxs
 //List of monitors
 local b_skipcraftlist = {
