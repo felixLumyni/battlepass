@@ -1,3 +1,9 @@
+# v16
+## Bomb (NEW!):
+	- Can no longer jump & fuse-dash with flag debuffs
+	- Volatile's counter pauses in zoomtubes
+	- Bomb's momentum is cut off when initially grabbing flag, his fuse-dash rceieves a minor nerf (player.maxdash = skin.maxdash*4/6)
+
 # v15b
 ## Whisper:
 	- Fixed ammo HUD going offscreen after a stunbreak
