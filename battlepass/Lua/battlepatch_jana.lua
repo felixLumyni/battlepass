@@ -79,6 +79,14 @@ local janabattle = function(player)
 		end
 	end
 	
+	if (player.mo.state == S_JANA_COMBOATTACK1 or player.mo.state == S_JANA_COMBOATTACK2 or player.mo.state == S_JANA_COMBOATTACK3
+	or player.mo.state == S_JANA_AIRATTACK) then //and jes.chargeTime < 3*TICRATE/2
+		player.canguard = false
+		player.actionstate = true // we need to set this to prevent guard from being reset too early
+	else
+		player.actionstate = false
+	end
+	
 	--prevent triggering dash through the usual means
 	player.janatapdash = 2
 	player.jana.c1down = true
@@ -114,6 +122,12 @@ local janawallexhaust = function()
 		if not (player.jana and player.mo and player.mo.skin == "jana") then
 			continue
 		end
+		if P_IsObjectOnGround(player.mo) and player.cmd.buttons & BT_TOSSFLAG and (player.cmd.forwardmove == 0) then
+			if (player.cmd.buttons & BT_CUSTOM1) then else
+			player.cmd.forwardmove = 1 // prevent toss flag taunt
+			end
+		end
+		
 		if player.jana.dashing != 0 then
 			player.actioncooldown = max(TICRATE,$)
 		end
@@ -142,6 +156,7 @@ local janawallexhaust = function()
 		end
 	end
 end
+
 addHook("PreThinkFrame",janawallexhaust)
 
 local janapriority = function(player)
@@ -167,6 +182,15 @@ local janacollide = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,
 		plr[n1].pflags = $ &~ PF_THOKKED
 		S_StopSoundByID(mo[n1], sfx_rekjmp)
 		P_SetObjectMomZ(mo[n1], -21 * mo[n1].scale, false)
+	end
+	local B = CBW_Battle
+	if (plr[n1].jana.dashing and atk[n1] <= 0 and atk[n2] <= 0) then
+		if plr[n2].guard > 0 then
+			P_DamageMobj(mo[n2], mo[n1], mo[n1])
+			return
+		end
+		local pushangle = R_PointToAngle2(mo[n1].x, mo[n1].y, mo[n2].x, mo[n2].y)
+		B.DoPlayerTumble(plr[n2], 22, pushangle, mo[n1].scale*3, true)
 	end
 end
 
@@ -317,7 +341,8 @@ local function BattleSaberHitboxCollide(hitbox, item) // adding hooks so sword h
 		return false
 	end
 	
-	if item.flags&(MF_MISSILE) and item.blockable == 1 and not (B.MyTeam(mo.player,item.target.player)) then  
+	if item.flags&(MF_MISSILE) and item.blockable == 1 and not (B.MyTeam(mo.player,item.target.player))
+	and (mo.state != S_JANA_COMBOATTACK1 and mo.state != S_JANA_COMBOATTACK2) then  
 		P_KillMobj(item, hitbox, hitbox, 0)
 		local recoil = FixedHypot(item.momx, item.momy)/-5
 		local recoilangle = R_PointToAngle2(mo.x, mo.y, item.x, item.y)
