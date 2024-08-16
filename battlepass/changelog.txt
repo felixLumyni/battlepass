@@ -7,6 +7,8 @@
 	- Fixed regression where death explosions would be near instantaneous
 ## Charmy (NEW!):
 	- Can no longer stinger dash while flagholding unless you're still
+## Heavy (NEW!):
+	- Disabled "Pow" taunt in battle pre-round
 
 # v20
 ## Bomb (NEW!):
