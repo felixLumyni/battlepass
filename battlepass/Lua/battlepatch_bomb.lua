@@ -6,28 +6,60 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
     local bomb = chaotix.bomb
     local B = CBW_Battle
 
-    bomb.ExplodeTics = TICRATE*1/4 --This constant determines how long Bomb's explosions last | Originally TICRATE*2/3
+    bomb.VolatileDamageTics = TICRATE/3 --This constant determines the lingering time of Bomb's explosions | Originally TICRATE*2/3
     bomb.ExplodeRange = FRACUNIT*115 --This constant determines the range of Bomb's explosions | Originally FRACUNIT*128
 
-    local SpinSpecial_old = bomb.SpinSpecial --Clone his SpinSpecial function
+    local function CanSpindash(player)
+    
+        return (player.speed < FixedMul(5<<FRACBITS, player.mo.scale))
+        and not(player.mo.momz) and P_IsObjectOnGround(player.mo)
+        and not(gamestate == GS_LEVEL and player.mo and player.mo.health > 0
+            and (abs(player.rmomx) >= FixedMul(FRACUNIT/2, player.mo.scale)
+                or abs(player.rmomy) >= FixedMul(FRACUNIT/2, player.mo.scale)
+                or abs(player.mo.momz) >= FixedMul(FRACUNIT/2, player.mo.scale)
+                or player.climbing or player.powers[pw_tailsfly]
+                or (player.pflags & PF_JUMPED)))
+    end
 
 
     local isbomb = function(player)
         return (player and player.mo and player.mo.valid and player.mo.skin == bomb.SKIN)
     end
 
-    local jumpCheck_PostThink = function(player)
+    local fuseDashJumpless_PostThink = function(player)
+        local startjump = (player.pflags & PF_STARTJUMP)
+        local thokked = (player.pflags & PF_THOKKED)
+        local justairdodged = (player.airdodge == -1)
+        local spinning = (player.pflags & PF_SPINNING)
+        local st_jump = (player.mo.state == S_PLAY_JUMP)
+        local st_fall = (player.mo.state == S_PLAY_FALL)
+        local st_topspin = ((player.mo.state == S_BOMB_TOPSPIN) or (player.mo.state == S_BOMB_TOPSPIN_FAST))
+        local st_fuseshot = (player.mo.bomb_thokked & bomb.ThokkedFlags["FUSESHOT"])
+        local st_fusedash = (player.mo.bomb_thokked & bomb.ThokkedFlags["FUSEDASH"])
 
-        local flagholding = (player.gotflagdebuff)
-        local jumped = (player.pflags & PF_STARTJUMP)
+        if spinning and st_fusedash then
+            player.mo.bombpatch_fusedashjump = true
+        elseif not(st_topspin) then
+            player.mo.bombpatch_fusedashjump = false
+        end
 
-        if flagholding and jumped then
-            player.mo.bomb_fusedash = false
+        local fusedashjump = player.mo.bombpatch_fusedashjump
+
+
+        if startjump then
+            if not(st_fuseshot) then
+                player.mo.bomb_fusedash = false
+            end
             player.pflags = $ & ~PF_SPINNING
             S_StopSoundByID(player.mo, sfx_sc0a5h)
-            player.mo.state = S_PLAY_JUMP
+            if not(thokked or justairdodged or st_fuseshot or st_fusedash) then
+                if not(st_jump or st_fall or st_fusedash or fusedashjump) then
+                    player.mo.state = S_PLAY_JUMP
+                end
+            end
         end --Try to cancel out fusedash if you manage to jump-spin it while flagholding
     end
+
 
     local volatilePause_Think = function(player)
 
@@ -56,19 +88,38 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
 
 
     --Fix issue where characters like Mario & Luigi get forced into roll
-    local SetTopSpinState_old = chaotix.bomb.SetTopSpinState
+    local SetTopSpinState_old = bomb.SetTopSpinState
 
-    bomb.SetTopSpinState = function(p)
-        if not(isbomb(p)) then
+    bomb.SetTopSpinState = function(player)
+        if not(isbomb(player)) then
             return
         end
-        SetTopSpinState_old(p) --Execute normally
+        SetTopSpinState_old(player) --Execute normally
     end
+
+
+    local stillSpinDash_PreThink = function(player)
+        local flagholding = (player.gotflagdebuff)
+        if not(CanSpindash(player)) and flagholding then
+            player.cmd.buttons = $ & ~(BT_SPIN)
+        end
+    end
+
+    local cupcakeSpawnDisable_Think = function(player)
+        local st_cupcake = (player.mo.state == S_BOMB_CUPCAKE)
+        if B.PreRoundWait() then
+            player.bomb_cupcake = nil
+            if st_cupcake then
+                player.mo.state = S_PLAY_STND
+            end         
+        end
+    end
+
 
     addHook("PostThinkFrame", do
         for player in players.iterate
             if isbomb(player) then
-                jumpCheck_PostThink(player)
+                fuseDashJumpless_PostThink(player)
             end
         end
     end)
@@ -77,6 +128,15 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         for player in players.iterate
             if isbomb(player) then
                 volatilePause_Think(player)
+                cupcakeSpawnDisable_Think(player)
+            end
+        end
+    end)
+
+    addHook("PreThinkFrame", do
+        for player in players.iterate
+            if isbomb(player) then
+                stillSpinDash_PreThink(player)
             end
         end
     end)

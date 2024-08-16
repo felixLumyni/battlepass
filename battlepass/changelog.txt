@@ -1,3 +1,11 @@
+# v21
+## Bomb:
+	- Must wait until you let go of jump in order to fuse dash
+	- Can no longer fusedash while flagholding unless you're still
+	- Lowered explosion lingering to a third of a second
+	- Disabled "Cupcake" taunt in battle pre-round
+	- Fixed regression where death explosions would be near instantaneous
+
 # v20
 ## Bomb (NEW!):
 	- Can no longer jump & fuse-dash with flag debuffs
