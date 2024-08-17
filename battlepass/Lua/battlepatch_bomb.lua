@@ -26,7 +26,24 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         return (player and player.mo and player.mo.valid and player.mo.skin == bomb.SKIN)
     end
 
+
+    local bomb_constantfdjblock = CV_RegisterVar({
+        name = "bomb_fdjblock",
+        defaultvalue = "On",
+        value = 1,
+        flags = CV_NETVAR|CV_CALL,
+        PossibleValue = CV_OnOff,
+        func = function(cv)
+            if cv.value
+                print("Bomb will now be unable to jump with Fuse Dash.")
+            else
+                print("Bomb will now only be able to jump with Fuse Dash when he's not flagholding.")
+            end
+        end
+    })
+
     local fuseDashJumpless_PostThink = function(player)
+        local flagholding = (player.gotflagdebuff)
         local startjump = (player.pflags & PF_STARTJUMP)
         local thokked = (player.pflags & PF_THOKKED)
         local justairdodged = (player.airdodge == -1)
@@ -36,6 +53,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         local st_topspin = ((player.mo.state == S_BOMB_TOPSPIN) or (player.mo.state == S_BOMB_TOPSPIN_FAST))
         local st_fuseshot = (player.mo.bomb_thokked & bomb.ThokkedFlags["FUSESHOT"])
         local st_fusedash = (player.mo.bomb_thokked & bomb.ThokkedFlags["FUSEDASH"])
+        local fdjblock = (bomb_constantfdjblock.value == 1)
 
         if spinning and st_fusedash then
             player.mo.bombpatch_fusedashjump = true
@@ -46,7 +64,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         local fusedashjump = player.mo.bombpatch_fusedashjump
 
 
-        if startjump then
+        if startjump and (flagholding or fdjblock) then
             if not(st_fuseshot) then
                 player.mo.bomb_fusedash = false
             end
@@ -105,6 +123,16 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         end
     end
 
+    local fuseDashJumpless_PreThink = function(player)
+        local flagholding = (player.gotflagdebuff)
+        local fdjblock = (bomb_constantfdjblock.value == 1)
+        if flagholding or fdjblock then
+            if player.mo.bomb_fusedash then
+                player.cmd.buttons = $ & ~(BT_JUMP)
+            end
+        end
+    end
+
     local cupcakeSpawnDisable_Think = function(player)
         local st_cupcake = (player.mo.state == S_BOMB_CUPCAKE)
         if B.PreRoundWait() then
@@ -137,6 +165,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         for player in players.iterate
             if isbomb(player) then
                 stillSpinDash_PreThink(player)
+                fuseDashJumpless_PreThink(player)
             end
         end
     end)

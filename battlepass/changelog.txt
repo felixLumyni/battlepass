@@ -1,3 +1,8 @@
+# v22
+## Bomb:
+	- You can no longer jump at all when using fuse dash
+		- This has been made into a CVar called "bomb_fdjblock", it's enabled by default. When it's off, his fude dash changes only apply when flagholding.
+
 # v21
 ## Bomb:
 	- Must wait until you let go of jump in order to fuse dash
@@ -14,7 +19,7 @@
 ## Bomb (NEW!):
 	- Can no longer jump & fuse-dash with flag debuffs
 	- Volatile's counter pauses in zoomtubes
-	- Bomb's momentum is cut off when initially grabbing flag, his fuse-dash rceieves a minor nerf
+	- Bomb's momentum is cut off when initially grabbing flag, his fuse-dash recieves a minor nerf
 
 # v19 - Skip and Jana edits (thank JAB for the assist!)
 ## Skip:
