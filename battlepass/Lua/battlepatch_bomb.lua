@@ -6,6 +6,13 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
     local bomb = chaotix.bomb
     local B = CBW_Battle
 
+    local bomb_enemysiren = freeslot("sfx_bmsie")
+    local bomb_allysiren = freeslot("sfx_bmsit")
+    local bombsiren_vol = 123
+    
+    sfxinfo[bomb_enemysiren].caption = "\x82".."VOLATILE BOMB".."\x80"
+    sfxinfo[bomb_allysiren].caption = "/"
+
     bomb.VolatileDamageTics = TICRATE/3 --This constant determines the lingering time of Bomb's explosions | Originally TICRATE*2/3
     bomb.ExplodeRange = FRACUNIT*115 --This constant determines the range of Bomb's explosions | Originally FRACUNIT*128
 
@@ -19,6 +26,19 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
                 or abs(player.mo.momz) >= FixedMul(FRACUNIT/2, player.mo.scale)
                 or player.climbing or player.powers[pw_tailsfly]
                 or (player.pflags & PF_JUMPED)))
+    end
+
+    
+    local teamSound = B.teamSound or function(source, player, soundteam, soundenemy, vol, selfisenemy)
+        for otherplayer in players.iterate do
+            if player and otherplayer and B.MyTeam(player, otherplayer)
+                and not (selfisenemy and source and source.player and source.player == player)
+            then
+                S_StartSoundAtVolume(source, soundteam, vol, otherplayer)
+            else
+                S_StartSoundAtVolume(source, soundenemy, vol, otherplayer)
+            end
+        end
     end
 
 
@@ -37,7 +57,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
             if cv.value
                 print("Bomb will now be unable to jump with Fuse Dash.")
             else
-                print("Bomb will now only be able to jump with Fuse Dash when he's not flagholding.")
+                print("Bomb will now only be able to jump with Fuse Dash when he's ".."\x82".."not".."\x80".." flagholding.")
             end
         end
     })
@@ -152,6 +172,27 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         end
     end
 
+    local bombSirens_Think = function(player)
+        if player.mo.bomb_volatile then
+
+            if not(S_SoundPlaying(player.mo, bomb_enemysiren) or S_SoundPlaying(player.mo, bomb_allysiren)) then
+                teamSound(player.mo, player, bomb_allysiren, bomb_enemysiren, bombsiren_vol, false)
+            end
+
+
+        else
+            if S_SoundPlaying(player.mo, bomb_enemysiren) then
+                S_StopSoundByID(player.mo, bomb_enemysiren)
+            end
+
+            if S_SoundPlaying(player.mo, bomb_allysiren) then
+                S_StopSoundByID(player.mo, bomb_allysiren)
+            end
+
+
+        end
+    end
+
 
     addHook("PostThinkFrame", do
         for player in players.iterate
@@ -166,6 +207,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
             if isbomb(player) then
                 volatilePause_Think(player)
                 cupcakeSpawnDisable_Think(player)
+                bombSirens_Think(player)
             end
         end
     end)
