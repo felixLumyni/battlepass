@@ -1,3 +1,10 @@
+# v23
+## Bomb:
+	- Added siren for when enemy bombs are in a volatile state
+	- Fixed weirdness with flagholding fusedash (No more buffer, you can do it while skidding, and it won't cancel early)
+## Charmy:
+	- Same fusedash fix as bomb, but with stinger dash
+
 # v22
 ## Bomb:
 	- You can no longer jump at all when using fuse dash
