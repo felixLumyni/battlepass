@@ -21,7 +21,16 @@ if CBW_Battle and chaotix and chaotix.charmy then --Only try to modify if we're 
 
     local stillStingerDash_PreThink = function(player)
         local flagholding = (player.gotflagdebuff)
-        if not(CanSpindash(player)) and flagholding then
+        local canfusedash = (CanSpindash(player) or player.skidtime or (player.pflags & PF_STARTDASH))
+
+        if canfusedash and player.mo.charmypatch_spin and not(player.cmd.buttons & BT_SPIN) then
+            player.mo.charmypatch_spin = nil
+        end
+
+        if (not(canfusedash) and flagholding) or player.mo.charmypatch_spin then
+            if (player.cmd.buttons & BT_SPIN) and not(player.mo.charmypatch_spin) then
+                player.mo.charmypatch_spin = true
+            end
             player.cmd.buttons = $ & ~(BT_SPIN)
         end
     end

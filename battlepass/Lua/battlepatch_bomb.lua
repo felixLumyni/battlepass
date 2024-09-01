@@ -118,7 +118,16 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
 
     local stillSpinDash_PreThink = function(player)
         local flagholding = (player.gotflagdebuff)
-        if not(CanSpindash(player)) and flagholding then
+        local canfusedash = (CanSpindash(player) or player.skidtime or (player.pflags & PF_STARTDASH))
+
+        if canfusedash and player.mo.bombpatch_spin and not(player.cmd.buttons & BT_SPIN) then
+            player.mo.bombpatch_spin = nil
+        end
+
+        if (not(canfusedash) and flagholding) or player.mo.bombpatch_spin then
+            if (player.cmd.buttons & BT_SPIN) and not(player.mo.bombpatch_spin) then
+                player.mo.bombpatch_spin = true
+            end
             player.cmd.buttons = $ & ~(BT_SPIN)
         end
     end
