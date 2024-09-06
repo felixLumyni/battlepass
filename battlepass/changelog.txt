@@ -1,3 +1,10 @@
+# v24
+## Ray:
+	- Fixed "Goomba Stomp" defense bug
+		- Ray now properly removes defense when ending Mach Tornado
+## Tumble(NEW!):
+	- [pw_strong] and player.dashmode are now set to zero when you're tumbling
+
 # v23
 ## Bomb:
 	- Added siren for when enemy bombs are in a volatile state
