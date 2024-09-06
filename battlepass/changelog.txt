@@ -1,3 +1,7 @@
+# v25 (HOTFIX)
+## Ray:
+	- Removed leftover code that caused a console error
+	
 # v24
 ## Ray:
 	- Fixed "Goomba Stomp" defense bug

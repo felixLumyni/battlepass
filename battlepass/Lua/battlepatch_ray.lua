@@ -37,8 +37,6 @@ local ray_defFix = function(player)
 	local st_burst = 3
 	local machTornado_Finished = (player.actionstate == st_burst)
 	local hasSpinDefense = (player.powers[pw_strong] & (STR_ANIM|STR_ATTACK|STR_WALL|STR_CEILING))
-	local tumbling = (player.tumble > 0)
-	local airDodging = (player.airdodge == -1)
 
 	if hasSpinDefense and (machTornado_Finished) then
 		player.powers[pw_strong] = $ & ~(STR_ANIM|STR_ATTACK|STR_WALL|STR_CEILING) --Remove spin defense
