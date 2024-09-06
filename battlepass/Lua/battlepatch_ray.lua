@@ -1,3 +1,6 @@
+
+local B = CBW_Battle
+
 local glidefix = function(flag, toucher)
 	local player = toucher.player
 	if player and toucher.rayglidefix then
@@ -17,17 +20,41 @@ end
 addHook("TouchSpecial", glidefix, MT_REDFLAG)
 addHook("TouchSpecial", glidefix, MT_BLUEFLAG)
 
+local isray = function(player)
+	return (player and player.mo and player.mo.valid and player.mo.skin == "ray")
+end
+
 local glidefix2 = function(player)
-	--bm ray check
-	local mo = player.mo
-	if not(CBW_Battle and mo and mo.valid and mo.skin == "ray") then
-		return
-	end
 	--glide cancel timer
-	if mo.state == S_PLAY_GLIDE then
-		mo.rayglidefix = TICRATE/2
+	if player.mo.state == S_PLAY_GLIDE then
+		player.mo.rayglidefix = TICRATE/2
 	else
-		mo.rayglidefix = $ and $-1 or 0
+		player.mo.rayglidefix = $ and $-1 or 0
 	end
 end
-addHook("PlayerThink", glidefix2)
+
+local ray_defFix = function(player)
+	local st_burst = 3
+	local machTornado_Finished = (player.actionstate == st_burst)
+	local hasSpinDefense = (player.powers[pw_strong] & (STR_ANIM|STR_ATTACK|STR_WALL|STR_CEILING))
+	local tumbling = (player.tumble > 0)
+	local airDodging = (player.airdodge == -1)
+
+	if hasSpinDefense and (machTornado_Finished) then
+		player.powers[pw_strong] = $ & ~(STR_ANIM|STR_ATTACK|STR_WALL|STR_CEILING) --Remove spin defense
+	end
+end
+
+addHook("PlayerThink", function(player)
+	if not(isray(player)) then
+		return
+	end
+
+	glidefix2(player)
+
+	if not(B) then
+		return
+	end
+
+	ray_defFix(player)
+end)
