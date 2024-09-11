@@ -222,6 +222,7 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
         
         B.SkinVars[heavy.SKIN].func_collide = Titanium_Collide_new
         B.SkinVars[heavy.SKIN].special = titaniumWithStartup
+        loaded = true
         --SkinVar overwriting end
     end)
 

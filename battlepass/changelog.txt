@@ -1,3 +1,7 @@
+# v27 (HOTFIX)
+## Eggman's Mechanix
+	- Fixed oversight where battle moves would keep overwriting every tic, instead of only once
+
 # v26
 ## Heavy:
 	- Removed "hidden hammer" bug

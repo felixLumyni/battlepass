@@ -343,6 +343,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         B.SkinVars[bomb.SKIN].func_collide = Volatile_Collide_new
         B.SkinVars[bomb.SKIN].special = volatileWithStartup
         --SkinVar overwriting end
+        loaded = true
     end)
 
     addHook("PreThinkFrame", do
