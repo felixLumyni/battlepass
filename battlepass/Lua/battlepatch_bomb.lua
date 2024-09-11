@@ -8,7 +8,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
 
     local bomb_enemysiren = freeslot("sfx_bmsie")
     local bomb_allysiren = freeslot("sfx_bmsit")
-    local bombsiren_vol = 123
+    local bombsiren_vol = 125
     
     sfxinfo[bomb_enemysiren].caption = "\x82".."VOLATILE BOMB".."\x80"
     sfxinfo[bomb_allysiren].caption = "/"
