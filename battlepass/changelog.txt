@@ -6,7 +6,7 @@
 	- Titanium now has a startup time of 7 tics (a third of a second)
 ## Bomb:
 	- Increased siren volume slightly
-	- Titanium now has a startup time of 7 tics (a third of a second)
+	- Volatile now has a startup time of 7 tics (a third of a second)
 	
 # v25 (HOTFIX)
 ## Ray:
