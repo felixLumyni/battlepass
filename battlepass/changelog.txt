@@ -1,3 +1,9 @@
+# v26
+## Heavy:
+	- Removed "hidden hammer" bug
+		- Utilized a P_SKIN to change heavy's "ability" from CA_TWINSPIN to CA_NONE, which was causing the 1-frame priority
+	- You can now stun break if you are tumbled by Titanium
+	
 # v25 (HOTFIX)
 ## Ray:
 	- Removed leftover code that caused a console error
