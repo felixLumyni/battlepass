@@ -9,6 +9,13 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
     local bomb_enemysiren = freeslot("sfx_bmsie")
     local bomb_allysiren = freeslot("sfx_bmsit")
     local bombsiren_vol = 125
+
+    local bomb_startupenemysiren = freeslot("sfx_bmste")
+    local bomb_startupallysiren = freeslot("sfx_bmstt")
+    local bombstartupsiren_vol = 125
+    
+    sfxinfo[bomb_startupenemysiren].caption = "\x82".."VOLATILE STARTUP".."\x80"
+    sfxinfo[bomb_startupallysiren].caption = "Volatile startup"
     
     sfxinfo[bomb_enemysiren].caption = "\x82".."VOLATILE BOMB".."\x80"
     sfxinfo[bomb_allysiren].caption = "/"
@@ -193,6 +200,42 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         end
     end
 
+    if not(rawget(_G, "MT_MECHANIXFGHOST")) then
+        mobjinfo[freeslot("MT_MECHANIXFGHOST")] = {
+            doomednum = -1,
+            spawnstate = S_INVISIBLE,
+            radius = FRACUNIT,
+            height = FRACUNIT,
+            dispoffset = mobjinfo[MT_PLAYER].dispoffset-1, --Behind player
+            flags = MF_NOBLOCKMAP|MF_NOGRAVITY|MF_NOCLIP|MF_NOCLIPHEIGHT|MF_SCENERY --Intangible
+        }
+    end
+
+    local VOLATILE_STARTUP = TICRATE/2
+
+    local state_volatilestartup = 13 --lucky number
+
+    local bombStartupSirens_Think = function(player)
+        if player.actionstate == state_volatilestartup then
+    
+            if not(S_SoundPlaying(player.mo, bomb_startupenemysiren) or S_SoundPlaying(player.mo, bomb_startupallysiren)) then
+                teamSound(player.mo, player, bomb_startupallysiren, bomb_startupenemysiren, bombstartupsiren_vol, false)
+            end
+
+
+        else
+            if S_SoundPlaying(player.mo, bomb_startupenemysiren) then
+                S_StopSoundByID(player.mo, bomb_startupenemysiren)
+            end
+
+            if S_SoundPlaying(player.mo, bomb_startupallysiren) then
+                S_StopSoundByID(player.mo, bomb_startupallysiren)
+            end
+
+
+        end
+    end
+
 
     addHook("PostThinkFrame", do
         for player in players.iterate
@@ -202,6 +245,8 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         end
     end)
 
+    local loaded = false
+
     addHook("ThinkFrame", do
         for player in players.iterate
             if isbomb(player) then
@@ -210,6 +255,94 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
                 bombSirens_Think(player)
             end
         end
+
+         --Main Player Hook end
+
+
+        --SkinVar Overwriting
+        if loaded then --Only write once
+            return
+        end
+
+        if not(rawget(B.SkinVars, bomb.SKIN)) then --Only write if ChaotixChars has already written
+            return
+        end 
+
+        --Give volatile a startup state
+        local volatileSpecial = B.SkinVars[bomb.SKIN].special
+
+        local volatileWithStartup = function(mo, doaction)
+            local player = mo.player
+
+            if mo.bombpatch_volatile then
+                player.canguard = false
+                if player.actionstate == 0 then
+                    volatileSpecial(mo, 1)
+                    mo.bombpatch_volatile = nil
+                    --player.rings = $+15
+                end
+                return
+            end
+
+            if (player.rings < bomb.MeltdownCost) then
+                volatileSpecial(mo, 0)
+                return
+            end
+
+            if (player.actionstate ~= state_volatilestartup) then
+                volatileSpecial(mo, 0)
+            end
+            if (doaction == 1) and (player.actionstate == 0) then
+                player.actionstate = state_volatilestartup
+                player.actiontime = VOLATILE_STARTUP
+                mo.bombpatch_ghost = P_SpawnMobjFromMobj(mo, 0,0,0, MT_MECHANIXFGHOST)
+                mo.bombpatch_ghost.frame = 0
+                mo.bombpatch_ghost.fuse = VOLATILE_STARTUP
+                mo.bombpatch_ghost.scale = 2*mo.scale
+                mo.bombpatch_ghost.destscale = mo.scale
+                mo.bombpatch_ghost.scalespeed = FRACUNIT/VOLATILE_STARTUP
+                --B.PayRings(player)
+            end
+
+            if (player.actionstate == state_volatilestartup) then
+
+                if mo.bombpatch_ghost and mo.bombpatch_ghost.valid then
+                    mo.bombpatch_ghost.skin = mo.skin
+                    mo.bombpatch_ghost.color = mo.color
+                    mo.bombpatch_ghost.colorized = true
+                    mo.bombpatch_ghost.renderflags = RF_FULLBRIGHT
+                    mo.bombpatch_ghost.blendmode = AST_ADD
+                    mo.bombpatch_ghost.sprite = mo.sprite
+                    mo.bombpatch_ghost.sprite2 = mo.sprite2
+                    mo.bombpatch_ghost.frame = mo.frame
+                    mo.bombpatch_ghost.angle = player.drawangle
+                    P_MoveOrigin(mo.bombpatch_ghost, mo.x, mo.y, ((mo.flags2 & MF2_OBJECTFLIP) and mo.z+mo.height) or mo.z)
+                end
+                    
+                if (player.actiontime > 1) then
+                    player.actiontime = $-1
+                    player.action2text = "Startup "..G_TicsToSeconds(player.actiontime).."."..G_TicsToCentiseconds(player.actiontime)
+                end
+
+                player.actiontext = "Volatile"
+                player.actionrings = bomb.MeltdownCost
+                player.actionsuper = true
+                if player.bomb_cupcake
+			        player.canguard = false
+		        end
+                
+                
+                if (player.actiontime == 1) then
+                    mo.bombpatch_volatile = true
+                    player.actionstate = 0
+                    player.canguard = false
+                end
+            end
+        end
+        
+        B.SkinVars[bomb.SKIN].func_collide = Volatile_Collide_new
+        B.SkinVars[bomb.SKIN].special = volatileWithStartup
+        --SkinVar overwriting end
     end)
 
     addHook("PreThinkFrame", do

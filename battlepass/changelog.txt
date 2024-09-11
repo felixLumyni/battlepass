@@ -3,8 +3,10 @@
 	- Removed "hidden hammer" bug
 		- Utilized a P_SKIN to change heavy's "ability" from CA_TWINSPIN to CA_NONE, which was causing the 1-frame priority
 	- You can now stun break if you are tumbled by Titanium
+	- Titanium now has a startup time of 7 tics (a third of a second)
 ## Bomb:
 	- Increased siren volume slightly
+	- Titanium now has a startup time of 7 tics (a third of a second)
 	
 # v25 (HOTFIX)
 ## Ray:
