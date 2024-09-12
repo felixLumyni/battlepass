@@ -86,7 +86,7 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
         end
     end
 
-    if not(rawget(_G, "MT_MECHANIXFGHOST")) then
+    if not pcall(do return MT_MECHANIXFGHOST end) then
         mobjinfo[freeslot("MT_MECHANIXFGHOST")] = {
             doomednum = -1,
             spawnstate = S_INVISIBLE,
@@ -152,6 +152,7 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
 
         local titaniumWithStartup = function(mo, doaction)
             local player = mo.player
+            local didaction = ((doaction == 1) and (player.actionstate == 0))
 
             if mo.heavyvars and mo.heavyvars.chargejump then
                 player.squashstretch = 1
@@ -163,15 +164,6 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
                 end
             end
 
-            if player.tumble or P_PlayerInPain(player) then
-                if mo.heavypatch_ghost and mo.heavypatch_ghost.valid then
-                    P_RemoveMobj(mo.heavypatch_ghost)
-                    mo.heavypatch_ghost = nil
-                end
-                player.actionstate = 0
-                mo.heavypatch_titanium = nil
-                B.ApplyCooldown(player, (TICRATE*17/4))
-            end
 
             if mo.heavypatch_titanium then
                 player.canguard = false
@@ -191,7 +183,19 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
             if (player.actionstate ~= state_titaniumstartup) then
                 titaniumSpecial(mo, 0)
             end
-            if (doaction == 1) and (player.actionstate == 0) then
+
+            if ((player.actionstate == state_titaniumstartup) or didaction) and (player.tumble or P_PlayerInPain(player)) then
+                if mo.heavypatch_ghost and mo.heavypatch_ghost.valid then
+                    P_RemoveMobj(mo.heavypatch_ghost)
+                    mo.heavypatch_ghost = nil
+                end
+                player.actionstate = 0
+                mo.heavypatch_titanium = nil
+                B.ApplyCooldown(player, (TICRATE*17/4))
+            end
+
+
+            if didaction then
                 player.actionstate = state_titaniumstartup
                 player.actiontime = TITANIUM_STARTUP
                 mo.heavypatch_ghost = P_SpawnMobjFromMobj(mo, 0,0,0, MT_MECHANIXFGHOST)
@@ -200,11 +204,12 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
                 mo.heavypatch_ghost.fuse = TITANIUM_STARTUP
                 mo.heavypatch_ghost.scale = 2*mo.scale
                 mo.heavypatch_ghost.destscale = mo.scale
-                mo.heavypatch_ghost.scalespeed = FRACUNIT/TITANIUM_STARTUP
+                mo.heavypatch_ghost.scalespeed = mo.scale/TITANIUM_STARTUP
                 --B.PayRings(player)
             end
 
             if (player.actionstate == state_titaniumstartup) then
+
 
                 if mo.heavypatch_ghost and mo.heavypatch_ghost.valid then
                     mo.heavypatch_ghost.skin = mo.skin

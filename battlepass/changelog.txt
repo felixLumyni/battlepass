@@ -1,3 +1,8 @@
+# v30 (HOTFIX)
+## Eggman's Mechanix
+	- Fixed oversight where actionstate would constantly reset if in pain or tumbling
+	- Ghosts now properly scale to player every time
+
 # v29
 ## Bomb:
 	- Startup siren actually plays now

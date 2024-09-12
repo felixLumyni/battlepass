@@ -200,7 +200,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         end
     end
 
-    if not(rawget(_G, "MT_MECHANIXFGHOST")) then
+    if not pcall(do return MT_MECHANIXFGHOST end) then
         mobjinfo[freeslot("MT_MECHANIXFGHOST")] = {
             doomednum = -1,
             spawnstate = S_INVISIBLE,
@@ -274,16 +274,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
 
         local volatileWithStartup = function(mo, doaction)
             local player = mo.player
-
-            if player.tumble or P_PlayerInPain(player) then
-                if mo.bombpatch_ghost and mo.bombpatch_ghost.valid then
-                    P_RemoveMobj(mo.bombpatch_ghost)
-                    mo.bombpatch_ghost = nil
-                end
-                player.actionstate = 0
-                mo.bombpatch_titanium = nil
-                B.ApplyCooldown(player, bomb.MeltdownCooldown)
-            end
+            local didaction = ((doaction == 1) and (player.actionstate == 0))
 
             if mo.bombpatch_volatile then
                 player.canguard = false
@@ -303,7 +294,19 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
             if (player.actionstate ~= state_volatilestartup) then
                 volatileSpecial(mo, 0)
             end
-            if (doaction == 1) and (player.actionstate == 0) then
+
+
+            if ((player.actionstate == state_volatilestartup) or didaction) and (player.tumble or P_PlayerInPain(player)) then
+                if mo.bombpatch_ghost and mo.bombpatch_ghost.valid then
+                    P_RemoveMobj(mo.bombpatch_ghost)
+                    mo.bombpatch_ghost = nil
+                end
+                player.actionstate = 0
+                mo.bombpatch_titanium = nil
+                B.ApplyCooldown(player, bomb.MeltdownCooldown)
+            end
+
+            if didaction then
                 player.actionstate = state_volatilestartup
                 player.actiontime = VOLATILE_STARTUP
                 mo.bombpatch_ghost = P_SpawnMobjFromMobj(mo, 0,0,0, MT_MECHANIXFGHOST)
@@ -311,7 +314,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
                 mo.bombpatch_ghost.fuse = VOLATILE_STARTUP
                 mo.bombpatch_ghost.scale = 2*mo.scale
                 mo.bombpatch_ghost.destscale = mo.scale
-                mo.bombpatch_ghost.scalespeed = FRACUNIT/VOLATILE_STARTUP
+                mo.bombpatch_ghost.scalespeed = mo.scale/VOLATILE_STARTUP
                 --B.PayRings(player)
             end
 
