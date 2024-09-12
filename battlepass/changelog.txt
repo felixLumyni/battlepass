@@ -1,3 +1,10 @@
+# v28
+## Heavy:
+	- Startup now cancels if you get hurt or tumbled, and applies the respective cooldown
+	- For Heavy specifically, his startup ghosts (along with other ghosts) now squish properly when he charges his coil jump
+## Bomb:
+	- Startup now cancels if you get hurt or tumbled, and applies the respective cooldown
+
 # v27 (HOTFIX)
 ## Eggman's Mechanix
 	- Fixed oversight where battle moves would keep overwriting every tic, instead of only once

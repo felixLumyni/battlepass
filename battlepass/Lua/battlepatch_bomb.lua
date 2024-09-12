@@ -274,6 +274,16 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
         local volatileWithStartup = function(mo, doaction)
             local player = mo.player
 
+            if player.tumble or P_PlayerInPain(player) then
+                if mo.bombpatch_ghost and mo.bombpatch_ghost.valid then
+                    P_RemoveMobj(mo.bombpatch_ghost)
+                    mo.bombpatch_ghost = nil
+                end
+                player.actionstate = 0
+                mo.bombpatch_titanium = nil
+                B.ApplyCooldown(player, bomb.MeltdownCooldown)
+            end
+
             if mo.bombpatch_volatile then
                 player.canguard = false
                 if player.actionstate == 0 then
@@ -316,6 +326,10 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
                     mo.bombpatch_ghost.sprite2 = mo.sprite2
                     mo.bombpatch_ghost.frame = mo.frame
                     mo.bombpatch_ghost.angle = player.drawangle
+                    mo.bombpatch_ghost.spritexscale = mo.spritexscale
+                    mo.bombpatch_ghost.spriteyscale = mo.spriteyscale
+                    mo.bombpatch_ghost.spritexoffset = mo.spritexoffset
+                    mo.bombpatch_ghost.spriteyoffset = mo.spriteyoffset
                     P_MoveOrigin(mo.bombpatch_ghost, mo.x, mo.y, ((mo.flags2 & MF2_OBJECTFLIP) and mo.z+mo.height) or mo.z)
                 end
                     

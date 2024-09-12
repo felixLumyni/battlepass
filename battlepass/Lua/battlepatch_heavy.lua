@@ -123,7 +123,6 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
         end
     end
 
-
     --Write into Skinvars
 
     local loaded = false
@@ -154,6 +153,26 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
         local titaniumWithStartup = function(mo, doaction)
             local player = mo.player
 
+            if mo.heavyvars and mo.heavyvars.chargejump then
+                player.squashstretch = 1
+                player.heavypatch_squashmarker = true
+            else
+                if player.heavypatch_squashmarker then
+                    player.squashstretch = 0
+                    player.heavypatch_squashmarker = true
+                end
+            end
+
+            if player.tumble or P_PlayerInPain(player) then
+                if mo.heavypatch_ghost and mo.heavypatch_ghost.valid then
+                    P_RemoveMobj(mo.heavypatch_ghost)
+                    mo.heavypatch_ghost = nil
+                end
+                player.actionstate = 0
+                mo.heavypatch_titanium = nil
+                B.ApplyCooldown(player, (TICRATE*17/4))
+            end
+
             if mo.heavypatch_titanium then
                 player.canguard = false
                 if player.actionstate == 0 then
@@ -176,6 +195,7 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
                 player.actionstate = state_titaniumstartup
                 player.actiontime = TITANIUM_STARTUP
                 mo.heavypatch_ghost = P_SpawnMobjFromMobj(mo, 0,0,0, MT_MECHANIXFGHOST)
+                mo.heavypatch_ghost.target = mo
                 mo.heavypatch_ghost.frame = 0
                 mo.heavypatch_ghost.fuse = TITANIUM_STARTUP
                 mo.heavypatch_ghost.scale = 2*mo.scale
@@ -196,6 +216,10 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
                     mo.heavypatch_ghost.sprite2 = mo.sprite2
                     mo.heavypatch_ghost.frame = mo.frame
                     mo.heavypatch_ghost.angle = player.drawangle
+                    mo.heavypatch_ghost.spritexscale = mo.spritexscale
+                    mo.heavypatch_ghost.spriteyscale = mo.spriteyscale
+                    mo.heavypatch_ghost.spritexoffset = mo.spritexoffset
+                    mo.heavypatch_ghost.spriteyoffset = mo.spriteyoffset
                     P_MoveOrigin(mo.heavypatch_ghost, mo.x, mo.y, ((mo.flags2 & MF2_OBJECTFLIP) and mo.z+mo.height) or mo.z)
                 end
                     
@@ -207,9 +231,7 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
                 player.actiontext = "Titanium"
                 player.actionrings = 15
                 player.actionsuper = true
-                if mo.state >= S_HEAVY_POW_START and mo.state <= S_HEAVY_POW_END
-                    player.canguard = false
-                end
+                player.canguard = false
                 
                 
                 if (player.actiontime == 1) then
