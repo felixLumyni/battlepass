@@ -1,3 +1,7 @@
+# v29
+## Bomb:
+	- Startup siren actually plays now
+
 # v28
 ## Heavy:
 	- Startup now cancels if you get hurt or tumbled, and applies the respective cooldown

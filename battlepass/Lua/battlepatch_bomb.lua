@@ -253,6 +253,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
                 volatilePause_Think(player)
                 cupcakeSpawnDisable_Think(player)
                 bombSirens_Think(player)
+                bombStartupSirens_Think(player)
             end
         end
 
