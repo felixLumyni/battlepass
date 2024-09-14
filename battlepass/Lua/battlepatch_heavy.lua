@@ -37,7 +37,7 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
 
     local heavy_enemysiren = freeslot("sfx_hvsie")
     local heavy_allysiren = freeslot("sfx_hvsit")
-    local heavysiren_vol = 125
+    local heavysiren_vol = 235
     
     sfxinfo[heavy_enemysiren].caption = "\x82".."TITANIUM STARTUP".."\x80"
     sfxinfo[heavy_allysiren].caption = "Titanium startup"
@@ -154,6 +154,14 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
             local player = mo.player
             local didaction = ((doaction == 1) and (player.actionstate == 0))
 
+            local clearVars = function()
+                mo.heavypatch_titanium = nil
+                if mo.heavypatch_ghost and mo.heavypatch_ghost.valid then
+                    P_RemoveMobj(mo.heavypatch_ghost)
+                    mo.heavypatch_ghost = nil
+                end
+            end
+
             if mo.heavyvars and mo.heavyvars.chargejump then
                 player.squashstretch = 1
                 player.heavypatch_squashmarker = true
@@ -175,7 +183,8 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
                 return
             end
 
-            if (player.rings < 15) then
+            if (player.rings < 15) and not(player.actionstate) then
+                clearVars()
                 titaniumSpecial(mo, 0)
                 return
             end
@@ -185,12 +194,8 @@ if CBW_Battle and chaotix and chaotix.Heavy then --Only try to modify if we're c
             end
 
             if ((player.actionstate == state_titaniumstartup) or didaction) and (player.tumble or P_PlayerInPain(player)) then
-                if mo.heavypatch_ghost and mo.heavypatch_ghost.valid then
-                    P_RemoveMobj(mo.heavypatch_ghost)
-                    mo.heavypatch_ghost = nil
-                end
+                clearVars()
                 player.actionstate = 0
-                mo.heavypatch_titanium = nil
                 B.ApplyCooldown(player, (TICRATE*17/4))
             end
 

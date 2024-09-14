@@ -12,7 +12,7 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
 
     local bomb_startupenemysiren = freeslot("sfx_bmste")
     local bomb_startupallysiren = freeslot("sfx_bmstt")
-    local bombstartupsiren_vol = 125
+    local bombstartupsiren_vol = 235
     
     sfxinfo[bomb_startupenemysiren].caption = "\x82".."VOLATILE STARTUP".."\x80"
     sfxinfo[bomb_startupallysiren].caption = "Volatile startup"
@@ -276,6 +276,14 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
             local player = mo.player
             local didaction = ((doaction == 1) and (player.actionstate == 0))
 
+            local clearVars = function()
+                mo.bombpatch_volatile = nil
+                if mo.bombpatch_ghost and mo.bombpatch_ghost.valid then
+                    P_RemoveMobj(mo.bombpatch_ghost)
+                    mo.bombpatch_ghost = nil
+                end
+            end
+
             if mo.bombpatch_volatile then
                 player.canguard = false
                 if player.actionstate == 0 then
@@ -286,7 +294,8 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
                 return
             end
 
-            if (player.rings < bomb.MeltdownCost) then
+            if ((player.rings < bomb.MeltdownCost) and not(player.actionstate)) then
+                clearVars()
                 volatileSpecial(mo, 0)
                 return
             end
@@ -297,12 +306,8 @@ if CBW_Battle and chaotix and chaotix.bomb then --Only try to modify if we're ce
 
 
             if ((player.actionstate == state_volatilestartup) or didaction) and (player.tumble or P_PlayerInPain(player)) then
-                if mo.bombpatch_ghost and mo.bombpatch_ghost.valid then
-                    P_RemoveMobj(mo.bombpatch_ghost)
-                    mo.bombpatch_ghost = nil
-                end
+                clearVars()
                 player.actionstate = 0
-                mo.bombpatch_titanium = nil
                 B.ApplyCooldown(player, bomb.MeltdownCooldown)
             end
 
