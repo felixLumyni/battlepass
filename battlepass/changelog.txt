@@ -1,3 +1,7 @@
+# v31
+## Chaotix
+	- Removed all patches for ChaotixChars, as they have been migrated to ChaotixPatch
+
 # v30 (HOTFIX)
 ## Eggman's Mechanix
 	- Fixed oversight where actionstate would constantly reset if in pain or tumbling
