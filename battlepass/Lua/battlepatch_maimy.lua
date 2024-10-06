@@ -80,9 +80,10 @@ local maimybattle2 = function()
 				player.actiontime = 0
 			end
 		end
-		--cancel dashmode on recoil
-		if player.mo.recoilthrust then
-			player.dashmode = 0
+		--hax
+		if player.maimyrestoredashmode then
+			player.charflags = $ | SF_DASHMODE
+			player.maimyrestoredashmode = false
 		end
 	end
 end
@@ -210,10 +211,16 @@ local newmaimyspecial = function(mo, doaction)
 	end
 end
 
+local dashmodecollidefix = function(n1,n2,plr,mo,atk,def,weight,hurt,pain,ground,angle,thrust,thrust2,collisiontype)
+	plr[n1].charflags = $ &~ SF_DASHMODE
+	plr[n1].maimyrestoredashmode = true
+end
+
 local maimyloaded = false
 local maimyload = function()
 	if CBW_Battle and CBW_Battle.SkinVars and CBW_Battle.SkinVars["maimy"] and not maimyloaded then
 		CBW_Battle.SkinVars["maimy"].special = newmaimyspecial
+		CBW_Battle.SkinVars["maimy"].func_postcollide = dashmodecollidefix
 		maimyloaded = true
 	end
 end
