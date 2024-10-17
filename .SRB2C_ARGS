@@ -1,0 +1,1 @@
+-prefile zba_battlemod-v9.3.5.pk3 -skipintro -server +downloading off +color luminous +skin tails +battle_preround 0 +restrictskinchange 0 +wait 1 +"map bz -g 8 -f" +wait 1 +changeteam 1 +"echo (preround and restrictskinchange disabled)"
