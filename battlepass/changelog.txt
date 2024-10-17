@@ -1,3 +1,11 @@
+# v33
+## Eggete (NEW!)
+	- Tails Doll sentries match with the owner's size when spawned
+
+# v32
+## Maimy
+	- Fixed reaining dashmode stats after a collision
+
 # v31
 ## Chaotix
 	- Removed all patches for ChaotixChars, as they have been migrated to ChaotixPatch
