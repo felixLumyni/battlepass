@@ -1,10 +1,12 @@
 # v33
-## Eggete (NEW!)
+## Eggette (NEW!)
 	- Tails Doll sentries match with the owner's size when spawned
+## Willo
+	- Removed from the pk3, all future changes are now in L_WilloPatch
 
 # v32
 ## Maimy
-	- Fixed reaining dashmode stats after a collision
+	- Fixed retaining dashmode stats after a collision
 
 # v31
 ## Chaotix
