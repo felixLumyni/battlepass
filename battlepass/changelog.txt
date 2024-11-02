@@ -1,3 +1,7 @@
+# v34
+## Eggman
+	- Badnik missiles always explode after about 8 seconds
+
 # v33
 ## Eggette (NEW!)
 	- Tails Doll sentries match with the owner's size when spawned
