@@ -1,3 +1,7 @@
+# v35
+## Knuckles (NEW!)
+	- Glide now emits a sound effect to enemies
+
 # v34
 ## Eggman
 	- Badnik missiles always explode after about 8 seconds
