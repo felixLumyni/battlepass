@@ -1,3 +1,8 @@
+# v36
+## Knuckles
+	- Reduced duration of Glide SFX (Should be easier to hear)
+	- The initial glide SFX plays indeterminate of glidetime (Accounting for things like recurls and drill-glide cancels)
+
 # v35
 ## Knuckles (NEW!)
 	- Glide now emits a sound effect to enemies
