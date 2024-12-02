@@ -1,3 +1,7 @@
+# v37
+## Trip (NEW!)
+	Trip's battle ability can now be aimed using inputs in Automatic mode
+
 # v36
 ## Knuckles
 	- Reduced duration of Glide SFX (Should be easier to hear)
