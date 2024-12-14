@@ -1,3 +1,13 @@
+# v38
+## Padoru
+	- padoru_stophop is once again disabled by default
+	- Players who have ``padoru_urusai`` disabled will be deaf to her chants
+	- New toggleable cvar: ``padoru_noises`` (disabled by default), toggles most umu's and omo's
+	Rage -> Festive Rage
+		- During use, speed is lowered (100% -> 75%)
+		- Priority is reduced in the first second of activation (2/2 -> 1/1)
+		- Can no longer stack with Festive dash/passive
+
 # v37
 ## Trip (NEW!)
 	Trip's battle ability can now be aimed using inputs in Automatic mode
