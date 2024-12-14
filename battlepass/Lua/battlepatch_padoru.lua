@@ -111,7 +111,7 @@ local padorunoises = CV_RegisterVar({
 	PossibleValue = CV_OnOff
 })
 
-local noises = {dsaltdi1 = dspadieu
+local noises = {
 	-- { "sfx_padieu", sfx_thok }, -- not being detected. whatever.
 	-- { "sfx_pahurt", sfx_thok }, -- not being detected. whatever.
 	{ "sfx_padumu", sfx_s3k62 },
